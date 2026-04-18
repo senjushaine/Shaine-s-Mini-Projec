@@ -25,7 +25,6 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; transition: background 0.4s, color 0.4s; }
         body, html { margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
 
-        /* --- SCREEN TRANSITIONS --- */
         .screen { position: fixed; inset: 0; display: none; opacity: 0; transform: translateY(15px); transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
         .screen.active { display: flex; opacity: 1; transform: translateY(0); }
 
@@ -47,8 +46,6 @@
         .note-card[data-style="purple"] { background: var(--grad-purple); color: white; border: none; }
         .note-card[data-style="orange"] { background: var(--grad-orange); color: white; border: none; }
 
-        .note-card.shaking { animation: wiggle 0.3s infinite; filter: brightness(0.8); }
-        @keyframes wiggle { 0%{transform:rotate(-1.5deg)} 50%{transform:rotate(1.5deg)} 100%{transform:rotate(-1.5deg)} }
         .del-overlay { position: absolute; inset: 0; background: rgba(255, 30, 30, 0.85); display: none; align-items: center; justify-content: center; z-index: 5; font-size: 2rem; color: white; }
         .shaking .del-overlay { display: flex; }
 
@@ -57,10 +54,8 @@
         #sideBar { width: 75px; background: var(--sidebar); display: flex; flex-direction: column; align-items: center; padding: 20px 0; border-right: 1px solid var(--border); transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); z-index: 100; }
         .toolbar-hidden #sideBar { margin-left: -75px; opacity: 0; }
 
-        .t-btn { width: 48px; height: 48px; border-radius: 14px; border: none; background: transparent; color: var(--text); font-size: 1.2rem; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .t-btn:active { background: rgba(0,0,0,0.1); transform: scale(0.9); }
+        .t-btn { width: 48px; height: 48px; border-radius: 14px; border: none; background: transparent; color: var(--text); font-size: 1.2rem; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; }
 
-        /* PALETTE POPUP */
         .palette-popup {
             position: fixed; left: 85px; bottom: 90px; background: var(--sidebar);
             border: 1px solid var(--border); border-radius: 24px; padding: 18px;
@@ -71,9 +66,8 @@
 
         .editor-space { flex: 1; display: flex; flex-direction: column; background: var(--paper); }
         #editor { flex: 1; padding: 10px 30px 100px; font-size: 1.3rem; overflow-y: auto; line-height: 1.7; color: var(--text); font-weight: 300; }
-        #titleInput { width: 100%; border: none; background: transparent; color: var(--text); font-size: 2.4rem; font-weight: 800; padding: 45px 30px 10px; font-family: 'Playfair Display', serif; letter-spacing: -0.5px; }
+        #titleInput { width: 100%; border: none; background: transparent; color: var(--text); font-size: 2.4rem; font-weight: 800; padding: 45px 30px 10px; font-family: 'Playfair Display', serif; }
 
-        /* UTILS */
         .fab-add { position: fixed; bottom: 35px; right: 25px; width: 75px; height: 75px; border-radius: 26px; background: var(--accent); color: white; border: none; font-size: 2.2rem; box-shadow: 0 12px 30px rgba(0,191,192,0.4); z-index: 90; }
         .fab-tool { position: fixed; bottom: 30px; left: 15px; width: 52px; height: 52px; border-radius: 50%; background: var(--accent); color: white; border: none; z-index: 1000; font-size: 1.4rem; box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
         #doneBtn { position: fixed; top: 50px; right: 25px; display: none; color: var(--accent); font-weight: 700; background: var(--sidebar); padding: 8px 20px; border-radius: 16px; border: 1px solid var(--border); z-index: 101; }
@@ -96,7 +90,6 @@
 
     <section id="canvasScreen" class="screen">
         <button class="fab-tool" onclick="document.body.classList.toggle('toolbar-hidden')">⚒</button>
-        
         <aside id="sideBar">
             <button class="t-btn" onclick="closeNote()">🏠</button>
             <div style="height:1px; width:40px; background:var(--border); margin:12px 0;"></div>
@@ -129,8 +122,8 @@
         let editMode = false;
         let timer;
         let paletteType = 'paper';
+        let lastRange = null; // Store cursor position
 
-        // GOODNOTES COLORS
         const colors = ["#EE7EA0", "#FE0D6D", "#00A1D8", "#00BFC0", "#91CA57", "#F7CE15", "#FD5E00", "#7851A5", "#363636", "#AAAAAA", "#F1ECEA", "#FFFFFF"];
         const styles = ['pink', 'blue', 'purple', 'orange'];
 
@@ -140,10 +133,42 @@
                 const d = document.createElement('div');
                 d.className = 'color-dot';
                 d.style.backgroundColor = c;
-                d.onclick = () => applyColor(c);
+                d.onmousedown = (e) => { e.preventDefault(); applyColor(c); }; // Prevent focus loss
                 container.appendChild(d);
             });
             renderHome();
+        }
+
+        // --- CURSOR PERSISTENCE LOGIC ---
+        const editor = document.getElementById('editor');
+        editor.addEventListener('mouseup', saveSelection);
+        editor.addEventListener('keyup', saveSelection);
+
+        function saveSelection() {
+            const sel = window.getSelection();
+            if (sel.rangeCount > 0) lastRange = sel.getRangeAt(0);
+        }
+
+        function restoreSelection() {
+            if (lastRange) {
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(lastRange);
+            }
+        }
+
+        function applyColor(c) {
+            if (paletteType === 'paper') {
+                document.getElementById('canvasBg').style.backgroundColor = c;
+                const n = db.find(n => n.id === activeId);
+                if (n) { n.bgColor = c; n.style = null; }
+            } else {
+                restoreSelection();
+                document.execCommand('foreColor', false, c);
+                editor.focus();
+            }
+            save();
+            document.getElementById('palettePop').style.display = 'none';
         }
 
         function renderHome() {
@@ -154,28 +179,16 @@
                 card.className = `note-card ${editMode ? 'shaking' : ''}`;
                 card.setAttribute('data-style', n.style || '');
                 if(n.bgColor) card.style.backgroundColor = n.bgColor;
-
                 card.innerHTML = `
                     <div class="del-overlay" onclick="removeNote(event, ${n.id})">🗑️</div>
                     <h4 style="margin:0; font-size:1.3rem; line-height:1.2; font-family:'Playfair Display', serif;">${n.title || 'Draft'}</h4>
                     <p style="font-size:0.75rem; opacity:0.7; margin-top:auto; font-weight:600;">${new Date(n.id).toLocaleDateString()}</p>
                 `;
-                
-                card.onmousedown = card.ontouchstart = () => { if(!editMode) timer = setTimeout(enableEdit, 800); };
-                card.onmouseup = card.ontouchend = () => clearTimeout(timer);
+                card.onmousedown = () => { if(!editMode) timer = setTimeout(enableEdit, 800); };
+                card.onmouseup = () => clearTimeout(timer);
                 card.onclick = () => { if(!editMode) openNote(n.id); };
                 grid.appendChild(card);
             });
-        }
-
-        function enableEdit() { editMode = true; document.getElementById('doneBtn').style.display = 'block'; renderHome(); }
-        function disableEdit() { editMode = false; document.getElementById('doneBtn').style.display = 'none'; renderHome(); }
-
-        function removeNote(e, id) {
-            e.stopPropagation();
-            db = db.filter(n => n.id !== id);
-            sync(); renderHome();
-            if(db.length === 0) disableEdit();
         }
 
         function openNote(id) {
@@ -183,18 +196,14 @@
                 const n = { id: Date.now(), title: "", content: "", style: styles[Math.floor(Math.random()*4)] };
                 db.unshift(n); activeId = n.id;
             } else { activeId = id; }
-            
             const note = db.find(n => n.id === activeId);
             document.getElementById('titleInput').value = note.title;
             document.getElementById('editor').innerHTML = note.content;
             document.getElementById('canvasBg').style.backgroundColor = note.bgColor || "var(--paper)";
-            
             switchScreen('canvasScreen');
-            document.body.classList.add('toolbar-hidden');
         }
 
         function closeNote() { switchScreen('homeScreen'); renderHome(); }
-
         function switchScreen(id) {
             document.querySelectorAll('.screen').forEach(s => {
                 s.classList.remove('active');
@@ -207,41 +216,23 @@
             }, 550);
         }
 
-        function doc(cmd, val = null) { document.execCommand(cmd, false, val); save(); }
-        
+        function doc(cmd, val = null) { document.execCommand(cmd, false, val); editor.focus(); save(); }
         function pop(type) { 
             paletteType = type; 
             const p = document.getElementById('palettePop');
             p.style.display = p.style.display === 'grid' ? 'none' : 'grid';
         }
-        
-        function applyColor(c) {
-            if(paletteType === 'paper') {
-                document.getElementById('canvasBg').style.backgroundColor = c;
-                const n = db.find(n => n.id === activeId);
-                if(n) { n.bgColor = c; n.style = null; }
-            } else {
-                // Focus the editor first to ensure command applies to selection
-                document.getElementById('editor').focus();
-                document.execCommand('foreColor', false, c);
-            }
-            save(); pop(); // Close palette after selection
-        }
-
         function save() {
             const n = db.find(n => n.id === activeId);
             if(n) {
                 n.title = document.getElementById('titleInput').value;
                 n.content = document.getElementById('editor').innerHTML;
-                sync();
-                document.getElementById('saveStatus').innerText = "Saving...";
-                setTimeout(() => document.getElementById('saveStatus').innerText = "Synced", 1000);
+                localStorage.setItem('BookLandMasterV3', JSON.stringify(db));
             }
         }
-
-        function sync() { localStorage.setItem('BookLandMasterV3', JSON.stringify(db)); }
         function toggleTheme() { document.body.classList.toggle('light-mode'); }
-
+        function enableEdit() { editMode = true; document.getElementById('doneBtn').style.display = 'block'; renderHome(); }
+        function disableEdit() { editMode = false; document.getElementById('doneBtn').style.display = 'none'; renderHome(); }
         init();
     </script>
 </body>
