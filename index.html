@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Idea BookLand Pro</title>
+    <title>Idea BookLand by Shaine Khant Paing</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;400;600;700&display=swap');
 
@@ -20,80 +20,86 @@
             --card-bg: rgba(255, 255, 255, 0.9);
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; transition: transform 0.2s, opacity 0.2s; }
-        body, html { margin: 0; padding: 0; font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body, html { margin: 0; padding: 0; font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; transition: background 0.3s; }
 
-        /* --- SCREEN STATES --- */
+        /* --- NAVIGATION --- */
         .screen { position: fixed; inset: 0; width: 100%; height: 100%; display: none; flex-direction: column; overflow: hidden; background: var(--bg); z-index: 10; }
-        .active-screen { display: flex; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+        .active-screen { display: flex; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* --- HOME SCREEN / DASHBOARD --- */
-        #homeScreen { padding: 40px 20px; overflow-y: auto; background: radial-gradient(circle at top right, rgba(0, 161, 216, 0.1), transparent); }
-        .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .logo-text { font-family: 'Pacifico', cursive; font-size: 2rem; background: var(--logo-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        /* --- HOME SCREEN --- */
+        #homeScreen { padding: 30px 20px; overflow-y: auto; }
+        .logo-container { margin-bottom: 30px; }
+        .logo-main { font-family: 'Pacifico', cursive; font-size: 2.2rem; background: var(--logo-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; }
+        .logo-sub { font-size: 0.8rem; opacity: 0.7; font-weight: 300; letter-spacing: 1px; margin-top: 5px; }
         
-        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 30px; }
-        .stat-card { background: var(--card-bg); padding: 20px; border-radius: 20px; border: 1px solid var(--border); backdrop-filter: blur(10px); }
-        .stat-card h3 { margin: 0; font-size: 0.8rem; opacity: 0.6; text-transform: uppercase; }
-        .stat-card p { margin: 5px 0 0; font-size: 1.8rem; font-weight: 700; color: #FFE964; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
+        .stat-card { background: var(--card-bg); padding: 15px; border-radius: 18px; border: 1px solid var(--border); }
+        .stat-card p { margin: 5px 0 0; font-size: 1.5rem; font-weight: 700; color: var(--accent); }
 
-        .widget-title { font-weight: 600; margin-bottom: 15px; display: flex; justify-content: space-between; }
-        .note-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
-        .note-widget { 
-            background: var(--card-bg); height: 180px; padding: 20px; border-radius: 22px; 
-            border: 1px solid var(--border); cursor: pointer; display: flex; flex-direction: column; position: relative;
-        }
-        .note-widget:hover { border-color: #00BFC0; transform: translateY(-5px); }
-        .note-widget.add-new { background: var(--logo-grad); justify-content: center; align-items: center; color: white; border: none; }
-        .note-widget h4 { margin: 0; font-size: 1rem; line-height: 1.2; height: 2.4em; overflow: hidden; }
-        .note-widget p { font-size: 0.75rem; opacity: 0.5; margin-top: auto; }
+        .note-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; padding-bottom: 40px; }
+        .note-widget { background: var(--card-bg); height: 160px; padding: 15px; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; }
+        .note-widget h4 { margin: 0; font-size: 0.95rem; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+        .add-new { background: var(--logo-grad); color: white; border: none; align-items: center; justify-content: center; text-align: center; }
 
-        /* --- CANVAS / EDITOR SCREEN --- */
+        /* --- CANVAS SCREEN --- */
         #canvasScreen { flex-direction: row; }
-        #sideToolbar { 
-            width: 65px; background: var(--sidebar); border-right: 1px solid var(--border); 
-            display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 15px;
-        }
-        .editor-container { flex: 1; display: flex; flex-direction: column; position: relative; }
-        .canvas-header { padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
-        .exit-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); padding: 8px 15px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; }
         
-        .paper-canvas { flex: 1; margin: 20px; border-radius: 24px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); display: flex; flex-direction: column; background: var(--paper); border: 1px solid var(--border); overflow: hidden; }
-        #editor { flex: 1; padding: 0 40px 40px; outline: none; overflow-y: auto; font-size: 1.15rem; line-height: 1.8; }
-        #noteTitle { width: 100%; background: transparent; border: none; color: var(--text); font-size: 2.2rem; font-weight: 700; padding: 40px 40px 10px; outline: none; }
+        /* DYNAMIC TOOLBAR */
+        #sideToolbar { 
+            width: 60px; background: var(--sidebar); border-right: 1px solid var(--border); 
+            display: flex; flex-direction: column; align-items: center; padding: 15px 0; gap: 12px;
+            transition: transform 0.3s ease, width 0.3s ease; z-index: 100;
+        }
+        .toolbar-hidden #sideToolbar { width: 0; transform: translateX(-60px); padding: 0; border: none; }
+        
+        .toolbar-toggle {
+            position: absolute; bottom: 20px; left: 10px; width: 40px; height: 40px;
+            background: var(--accent); color: white; border-radius: 50%; border: none;
+            z-index: 110; display: flex; align-items: center; justify-content: center; font-weight: bold;
+        }
 
-        /* --- TOOLBAR TOOLS --- */
-        .tool-btn { width: 40px; height: 40px; border-radius: 10px; border: none; background: transparent; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+        .editor-container { flex: 1; display: flex; flex-direction: column; position: relative; }
+        .canvas-header { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; }
+        .exit-btn { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 6px 12px; border-radius: 10px; font-weight: 600; cursor: pointer; }
+
+        /* EXPANDED CANVAS */
+        .paper-canvas { 
+            flex: 1; margin: 0 10px 10px 10px; border-radius: 20px; 
+            background: var(--paper); border: 1px solid var(--border); 
+            display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        #editor { flex: 1; padding: 0 25px 30px; outline: none; overflow-y: auto; font-size: 1.1rem; line-height: 1.6; }
+        #noteTitle { width: 100%; background: transparent; border: none; color: var(--text); font-size: 1.8rem; font-weight: 700; padding: 25px 25px 10px; outline: none; }
+
+        .tool-btn { width: 38px; height: 38px; border-radius: 8px; border: none; background: transparent; color: var(--text); cursor: pointer; font-size: 1.1rem; }
         .tool-btn:hover { background: rgba(255,255,255,0.1); }
-        .divider { width: 30px; height: 1px; background: var(--border); margin: 5px 0; }
+        .divider { width: 30px; height: 1px; background: var(--border); margin: 4px 0; }
     </style>
 </head>
 <body class="dark-mode">
 
     <section id="homeScreen" class="screen active-screen">
-        <div class="dashboard-header">
-            <div class="logo-text">BookLand</div>
-            <button onclick="toggleTheme()" class="exit-btn">🌓 Theme</button>
+        <div class="logo-container">
+            <div class="logo-main">Idea BookLand</div>
+            <div class="logo-sub">by Shaine Khant Paing</div>
         </div>
 
         <div class="stats-grid">
-            <div class="stat-card"><h3>Total Ideas</h3><p id="statCount">0</p></div>
-            <div class="stat-card"><h3>Today</h3><p>New</p></div>
+            <div class="stat-card"><span>Total Ideas</span><p id="statCount">0</p></div>
+            <div class="stat-card" onclick="toggleTheme()" style="cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:600;">🌓 Mode</div>
         </div>
 
-        <div class="widget-title">
-            <span>Recent Space</span>
-            <span style="color: var(--accent); cursor: pointer;" onclick="enterCanvas(null)">View All</span>
-        </div>
-
-        <div class="note-grid" id="noteGrid">
-            </div>
+        <div class="note-grid" id="noteGrid"></div>
     </section>
 
     <section id="canvasScreen" class="screen">
+        <button class="toolbar-toggle" onclick="toggleToolbar()">⚒</button>
+        
         <aside id="sideToolbar">
-            <button class="tool-btn" onclick="exitToHome()" title="Home">🏠</button>
+            <button class="tool-btn" onclick="exitToHome()">🏠</button>
             <div class="divider"></div>
             <button class="tool-btn" onclick="exec('bold')"><b>B</b></button>
             <button class="tool-btn" onclick="exec('italic')"><i>I</i></button>
@@ -102,21 +108,20 @@
             <div class="divider"></div>
             <button class="tool-btn" onclick="exec('justifyLeft')">⬅</button>
             <button class="tool-btn" onclick="exec('justifyCenter')">↔</button>
-            <button class="tool-btn" onclick="exec('insertUnorderedList')">list</button>
             <div class="divider"></div>
-            <input type="color" onchange="exec('foreColor', this.value)" style="width:25px; height:25px; border:none; background:none; cursor:pointer;" title="Text Color">
-            <input type="color" onchange="updateCanvasColor(this.value)" style="width:25px; height:25px; border:2px solid white; border-radius:50%; background:none; cursor:pointer;" title="Canvas Color">
+            <input type="color" onchange="exec('foreColor', this.value)" style="width:25px; height:25px; border:none; background:none; cursor:pointer;">
+            <input type="color" onchange="updateCanvasColor(this.value)" style="width:25px; height:25px; border:2px solid white; border-radius:50%; background:none; cursor:pointer;">
             <button class="tool-btn" onclick="deleteActiveNote()" style="margin-top: auto; color: #FC2220;">🗑</button>
         </aside>
 
         <div class="editor-container">
             <header class="canvas-header">
-                <div id="saveStatus" style="font-size: 0.8rem; opacity: 0.5;">Saved to Cloud</div>
+                <span id="saveStatus" style="font-size: 0.7rem; opacity: 0.4;">Synced</span>
                 <button class="exit-btn" onclick="exitToHome()">Exit ➜</button>
             </header>
 
             <div class="paper-canvas" id="canvasFrame">
-                <input type="text" id="noteTitle" placeholder="Title your idea..." oninput="autoSave()">
+                <input type="text" id="noteTitle" placeholder="Idea Title..." oninput="autoSave()">
                 <div id="editor" contenteditable="true" oninput="autoSave()"></div>
             </div>
         </div>
@@ -126,38 +131,24 @@
         let notes = JSON.parse(localStorage.getItem('BookLandData')) || [];
         let activeId = null;
 
-        // --- NAVIGATION ---
-        function exitToHome() {
-            document.getElementById('canvasScreen').classList.remove('active-screen');
-            document.getElementById('homeScreen').classList.add('active-screen');
-            renderDashboard();
-        }
+        function toggleToolbar() { document.body.classList.toggle('toolbar-hidden'); }
+        function exitToHome() { document.getElementById('canvasScreen').classList.remove('active-screen'); document.getElementById('homeScreen').classList.add('active-screen'); renderDashboard(); }
 
         function enterCanvas(id) {
             if (!id) {
                 const newNote = { id: Date.now(), title: "", content: "", color: "" };
-                notes.unshift(newNote);
-                activeId = newNote.id;
-            } else {
-                activeId = id;
-            }
+                notes.unshift(newNote); activeId = newNote.id;
+            } else { activeId = id; }
             loadNote();
             document.getElementById('homeScreen').classList.remove('active-screen');
             document.getElementById('canvasScreen').classList.add('active-screen');
         }
 
-        // --- EDITOR LOGIC ---
-        function exec(cmd, val = null) {
-            document.getElementById('editor').focus();
-            document.execCommand(cmd, false, val);
-            autoSave();
-        }
+        function exec(cmd, val = null) { document.getElementById('editor').focus(); document.execCommand(cmd, false, val); autoSave(); }
 
-        function updateCanvasColor(color) {
-            document.getElementById('canvasFrame').style.backgroundColor = color;
-            const note = notes.find(n => n.id === activeId);
-            if (note) note.color = color;
-            saveData();
+        function updateCanvasColor(color) { 
+            document.getElementById('canvasFrame').style.backgroundColor = color; 
+            const note = notes.find(n => n.id === activeId); if (note) note.color = color; saveData(); 
         }
 
         function loadNote() {
@@ -173,44 +164,30 @@
                 note.title = document.getElementById('noteTitle').value;
                 note.content = document.getElementById('editor').innerHTML;
                 saveData();
-                document.getElementById('saveStatus').innerText = "Syncing...";
-                setTimeout(() => document.getElementById('saveStatus').innerText = "Saved", 800);
+                document.getElementById('saveStatus').innerText = "Saving...";
+                setTimeout(() => document.getElementById('saveStatus').innerText = "Saved", 500);
             }
         }
 
-        function deleteActiveNote() {
-            if(confirm("Permanently delete?")) {
-                notes = notes.filter(n => n.id !== activeId);
-                saveData();
-                exitToHome();
-            }
-        }
+        function deleteActiveNote() { if(confirm("Delete Idea?")) { notes = notes.filter(n => n.id !== activeId); saveData(); exitToHome(); } }
 
-        // --- DASHBOARD RENDER ---
         function renderDashboard() {
             const grid = document.getElementById('noteGrid');
             document.getElementById('statCount').innerText = notes.length;
-            
-            grid.innerHTML = `<div class="note-widget add-new" onclick="enterCanvas(null)"><h2>＋</h2><b>Create Idea</b></div>`;
-            
+            grid.innerHTML = `<div class="note-widget add-new" onclick="enterCanvas(null)"><h3>＋</h3><b>New Idea</b></div>`;
             notes.forEach(n => {
                 const widget = document.createElement('div');
                 widget.className = 'note-widget';
                 widget.style.backgroundColor = n.color || 'var(--card-bg)';
                 widget.onclick = () => enterCanvas(n.id);
-                widget.innerHTML = `
-                    <h4>${n.title || 'Draft Idea'}</h4>
-                    <p>${new Date(n.id).toLocaleDateString()}</p>
-                `;
+                widget.innerHTML = `<h4>${n.title || 'Draft Idea'}</h4><p style="font-size:0.7rem; opacity:0.4; margin-top:auto;">${new Date(n.id).toLocaleDateString()}</p>`;
                 grid.appendChild(widget);
             });
         }
 
         function saveData() { localStorage.setItem('BookLandData', JSON.stringify(notes)); }
         function toggleTheme() { document.body.classList.toggle('light-mode'); }
-
         renderDashboard();
     </script>
 </body>
-    </html>
-    
+</html>
