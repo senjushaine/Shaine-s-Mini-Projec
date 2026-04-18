@@ -5,200 +5,166 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Idea BookLand Pro</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;400;600;700&display=swap');
 
         :root {
             --bg: #0f172a; --sidebar: #1e293b; --text: #f1f5f9;
-            --border: #334155; --paper: #1e293b;
+            --border: rgba(255,255,255,0.1); --paper: #1e293b;
+            --accent: #00BFC0;
             --logo-grad: linear-gradient(45deg, #FE0D6D, #00A1D8);
-            --btn-grad: linear-gradient(135deg, #00BFC0, #3EC5A2);
-            --delete-red: #FC2220;
+            --card-bg: rgba(30, 41, 59, 0.7);
         }
         .light-mode {
             --bg: #f8fafc; --sidebar: #ffffff; --text: #0f172a;
-            --border: #cbd5e1; --paper: #ffffff;
+            --border: rgba(0,0,0,0.1); --paper: #ffffff;
+            --card-bg: rgba(255, 255, 255, 0.9);
         }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; overflow: hidden; }
 
-        /* Sidebar & Multi-Select */
-        #sidebar { 
-            width: 280px; background: var(--sidebar); border-right: 1px solid var(--border); 
-            display: flex; flex-direction: column; z-index: 200; transition: 0.3s;
-        }
-        .sidebar-hidden #sidebar { margin-left: -280px; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; transition: transform 0.2s, opacity 0.2s; }
+        body, html { margin: 0; padding: 0; font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
+
+        /* --- SCREEN STATES --- */
+        .screen { position: fixed; inset: 0; width: 100%; height: 100%; display: none; flex-direction: column; overflow: hidden; background: var(--bg); z-index: 10; }
+        .active-screen { display: flex; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+
+        /* --- HOME SCREEN / DASHBOARD --- */
+        #homeScreen { padding: 40px 20px; overflow-y: auto; background: radial-gradient(circle at top right, rgba(0, 161, 216, 0.1), transparent); }
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .logo-text { font-family: 'Pacifico', cursive; font-size: 2rem; background: var(--logo-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
-        .logo-area { padding: 20px; font-family: 'Pacifico', cursive; font-size: 1.4rem; background: var(--logo-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; justify-content: space-between; align-items: center; }
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 30px; }
+        .stat-card { background: var(--card-bg); padding: 20px; border-radius: 20px; border: 1px solid var(--border); backdrop-filter: blur(10px); }
+        .stat-card h3 { margin: 0; font-size: 0.8rem; opacity: 0.6; text-transform: uppercase; }
+        .stat-card p { margin: 5px 0 0; font-size: 1.8rem; font-weight: 700; color: #FFE964; }
+
+        .widget-title { font-weight: 600; margin-bottom: 15px; display: flex; justify-content: space-between; }
+        .note-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
+        .note-widget { 
+            background: var(--card-bg); height: 180px; padding: 20px; border-radius: 22px; 
+            border: 1px solid var(--border); cursor: pointer; display: flex; flex-direction: column; position: relative;
+        }
+        .note-widget:hover { border-color: #00BFC0; transform: translateY(-5px); }
+        .note-widget.add-new { background: var(--logo-grad); justify-content: center; align-items: center; color: white; border: none; }
+        .note-widget h4 { margin: 0; font-size: 1rem; line-height: 1.2; height: 2.4em; overflow: hidden; }
+        .note-widget p { font-size: 0.75rem; opacity: 0.5; margin-top: auto; }
+
+        /* --- CANVAS / EDITOR SCREEN --- */
+        #canvasScreen { flex-direction: row; }
+        #sideToolbar { 
+            width: 65px; background: var(--sidebar); border-right: 1px solid var(--border); 
+            display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 15px;
+        }
+        .editor-container { flex: 1; display: flex; flex-direction: column; position: relative; }
+        .canvas-header { padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+        .exit-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); padding: 8px 15px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; }
         
-        .note-list { flex: 1; overflow-y: auto; padding: 10px; }
-        .note-item { padding: 12px; border-radius: 10px; margin-bottom: 8px; cursor: pointer; border: 1px solid var(--border); display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.02); }
-        .note-item.active { border: 2px solid #FFE964; background: rgba(255, 233, 100, 0.05); }
-        .select-checkbox { width: 18px; height: 18px; accent-color: #3EC5A2; }
+        .paper-canvas { flex: 1; margin: 20px; border-radius: 24px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); display: flex; flex-direction: column; background: var(--paper); border: 1px solid var(--border); overflow: hidden; }
+        #editor { flex: 1; padding: 0 40px 40px; outline: none; overflow-y: auto; font-size: 1.15rem; line-height: 1.8; }
+        #noteTitle { width: 100%; background: transparent; border: none; color: var(--text); font-size: 2.2rem; font-weight: 700; padding: 40px 40px 10px; outline: none; }
 
-        /* Floating Bulk Action Button (Front & Center) */
-        #bulkDeleteBtn {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-            background: var(--delete-red); color: white; padding: 15px 25px;
-            border-radius: 50px; font-weight: bold; border: none; z-index: 300;
-            display: none; box-shadow: 0 10px 20px rgba(252, 34, 32, 0.4);
-        }
-        .bulk-mode #bulkDeleteBtn { display: block; }
-
-        /* Main Area */
-        #main { flex: 1; display: flex; position: relative; overflow: hidden; }
-        
-        /* VERTICAL SIDE TOOLBAR (Notion Style) */
-        #sideToolbar {
-            width: 50px; background: var(--sidebar); border-right: 1px solid var(--border);
-            display: flex; flex-direction: column; align-items: center; padding: 15px 0; gap: 20px;
-            transition: 0.3s;
-        }
-        .toolbar-hidden #sideToolbar { width: 0; padding: 0; overflow: hidden; border: none; }
-
-        .tool-icon { background: none; border: none; color: var(--text); font-size: 1.2rem; cursor: pointer; opacity: 0.7; transition: 0.2s; }
-        .tool-icon:hover { opacity: 1; transform: scale(1.1); }
-
-        /* Canvas */
-        .editor-container { flex: 1; display: flex; flex-direction: column; padding: 20px; background: var(--bg); }
-        .paper-canvas { 
-            flex: 1; background: var(--paper); border-radius: 15px; 
-            display: flex; flex-direction: column; box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-            border: 1px solid var(--border);
-        }
-
-        #editor { flex: 1; outline: none; padding: 0 30px 30px; overflow-y: auto; line-height: 1.6; font-size: 1.1rem; }
-        
-        /* Title Area with Color/Rename */
-        .title-box { padding: 30px 30px 10px; display: flex; align-items: center; gap: 10px; }
-        #noteTitle { 
-            background: transparent; border: none; color: var(--text); 
-            font-size: 2rem; font-weight: 700; outline: none; flex: 1;
-        }
-
-        /* Mobile Controls */
-        .menu-trigger { position: absolute; top: 10px; right: 10px; z-index: 150; }
-
-        @media (max-width: 600px) {
-            #sidebar { position: absolute; height: 100%; }
-            .sidebar-hidden #sidebar { transform: translateX(-100%); }
-        }
+        /* --- TOOLBAR TOOLS --- */
+        .tool-btn { width: 40px; height: 40px; border-radius: 10px; border: none; background: transparent; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+        .tool-btn:hover { background: rgba(255,255,255,0.1); }
+        .divider { width: 30px; height: 1px; background: var(--border); margin: 5px 0; }
     </style>
 </head>
-<body class="sidebar-hidden">
+<body class="dark-mode">
 
-    <button id="bulkDeleteBtn" onclick="deleteSelected()">🗑 Delete Selected Ideas</button>
-
-    <aside id="sidebar">
-        <div class="logo-area">
-            <span>Idea BookLand</span>
-            <button class="tool-icon" onclick="toggleSidebar()">✕</button>
+    <section id="homeScreen" class="screen active-screen">
+        <div class="dashboard-header">
+            <div class="logo-text">BookLand</div>
+            <button onclick="toggleTheme()" class="exit-btn">🌓 Theme</button>
         </div>
-        <button onclick="addNote()" style="margin: 10px 20px; padding: 12px; background: var(--btn-grad); border:none; border-radius:10px; color:white; font-weight:600; cursor:pointer;">＋ New Idea</button>
-        <div id="noteList" class="note-list"></div>
-    </aside>
 
-    <main id="main">
-        <div id="sideToolbar">
-            <button class="tool-icon" onclick="toggleSidebar()" title="Menu">☰</button>
-            <button class="tool-icon" onclick="toggleTheme()" title="Theme">🌓</button>
-            <hr style="width: 60%; border: 0.5px solid var(--border);">
-            <button class="tool-icon" onclick="exec('bold')"><b>B</b></button>
-            <button class="tool-icon" onclick="exec('italic')"><i>I</i></button>
-            <input type="color" onchange="exec('foreColor', this.value)" style="width:25px; height:25px; border:none; cursor:pointer; background:none;">
-            <input type="color" onchange="changeCanvasColor(this.value)" style="width:25px; height:25px; border:2px solid white; border-radius:4px; cursor:pointer; background:none;">
-            <button class="tool-icon" onclick="deleteNote()" style="color: var(--delete-red); margin-top: auto;">🗑</button>
+        <div class="stats-grid">
+            <div class="stat-card"><h3>Total Ideas</h3><p id="statCount">0</p></div>
+            <div class="stat-card"><h3>Today</h3><p>New</p></div>
         </div>
+
+        <div class="widget-title">
+            <span>Recent Space</span>
+            <span style="color: var(--accent); cursor: pointer;" onclick="enterCanvas(null)">View All</span>
+        </div>
+
+        <div class="note-grid" id="noteGrid">
+            </div>
+    </section>
+
+    <section id="canvasScreen" class="screen">
+        <aside id="sideToolbar">
+            <button class="tool-btn" onclick="exitToHome()" title="Home">🏠</button>
+            <div class="divider"></div>
+            <button class="tool-btn" onclick="exec('bold')"><b>B</b></button>
+            <button class="tool-btn" onclick="exec('italic')"><i>I</i></button>
+            <button class="tool-btn" onclick="exec('underline')"><u>U</u></button>
+            <button class="tool-btn" onclick="exec('strikeThrough')"><s>S</s></button>
+            <div class="divider"></div>
+            <button class="tool-btn" onclick="exec('justifyLeft')">⬅</button>
+            <button class="tool-btn" onclick="exec('justifyCenter')">↔</button>
+            <button class="tool-btn" onclick="exec('insertUnorderedList')">list</button>
+            <div class="divider"></div>
+            <input type="color" onchange="exec('foreColor', this.value)" style="width:25px; height:25px; border:none; background:none; cursor:pointer;" title="Text Color">
+            <input type="color" onchange="updateCanvasColor(this.value)" style="width:25px; height:25px; border:2px solid white; border-radius:50%; background:none; cursor:pointer;" title="Canvas Color">
+            <button class="tool-btn" onclick="deleteActiveNote()" style="margin-top: auto; color: #FC2220;">🗑</button>
+        </aside>
 
         <div class="editor-container">
-            <button onclick="toggleToolbar()" style="position: absolute; top: 10px; left: 10px; background: none; border: none; color: var(--text); opacity: 0.3; cursor: pointer;">⚙️</button>
-            
+            <header class="canvas-header">
+                <div id="saveStatus" style="font-size: 0.8rem; opacity: 0.5;">Saved to Cloud</div>
+                <button class="exit-btn" onclick="exitToHome()">Exit ➜</button>
+            </header>
+
             <div class="paper-canvas" id="canvasFrame">
-                <div class="title-box">
-                    <input type="text" id="noteTitle" placeholder="Untitled Idea" oninput="autoSave()">
-                    <input type="color" onchange="changeTitleColor(this.value)" title="Title Color" style="width:20px; height:20px; border:none; cursor:pointer; background:none;">
-                </div>
+                <input type="text" id="noteTitle" placeholder="Title your idea..." oninput="autoSave()">
                 <div id="editor" contenteditable="true" oninput="autoSave()"></div>
             </div>
         </div>
-    </main>
+    </section>
 
     <script>
-        let notes = JSON.parse(localStorage.getItem('ZenData')) || [];
+        let notes = JSON.parse(localStorage.getItem('BookLandData')) || [];
         let activeId = null;
-        let selectedNotes = new Set();
 
+        // --- NAVIGATION ---
+        function exitToHome() {
+            document.getElementById('canvasScreen').classList.remove('active-screen');
+            document.getElementById('homeScreen').classList.add('active-screen');
+            renderDashboard();
+        }
+
+        function enterCanvas(id) {
+            if (!id) {
+                const newNote = { id: Date.now(), title: "", content: "", color: "" };
+                notes.unshift(newNote);
+                activeId = newNote.id;
+            } else {
+                activeId = id;
+            }
+            loadNote();
+            document.getElementById('homeScreen').classList.remove('active-screen');
+            document.getElementById('canvasScreen').classList.add('active-screen');
+        }
+
+        // --- EDITOR LOGIC ---
         function exec(cmd, val = null) {
             document.getElementById('editor').focus();
             document.execCommand(cmd, false, val);
             autoSave();
         }
 
-        function changeTitleColor(color) {
-            document.getElementById('noteTitle').style.color = color;
-            const note = notes.find(n => n.id === activeId);
-            if (note) note.titleColor = color;
-            save();
-        }
-
-        function changeCanvasColor(color) {
+        function updateCanvasColor(color) {
             document.getElementById('canvasFrame').style.backgroundColor = color;
             const note = notes.find(n => n.id === activeId);
-            if (note) note.canvasColor = color;
-            save();
+            if (note) note.color = color;
+            saveData();
         }
 
-        function toggleToolbar() { document.body.classList.toggle('toolbar-hidden'); }
-        function toggleSidebar() { document.body.classList.toggle('sidebar-hidden'); }
-        function toggleTheme() { document.body.classList.toggle('light-mode'); localStorage.setItem('ZenTheme', document.body.classList.contains('light-mode')); }
-
-        function init() {
-            if (localStorage.getItem('ZenTheme') === 'true') document.body.classList.add('light-mode');
-            if (notes.length === 0) addNote();
-            else selectNote(notes[0].id);
-            renderList();
-        }
-
-        function addNote() {
-            const newNote = { id: Date.now(), title: "", content: "Start typing...", canvasColor: "", titleColor: "" };
-            notes.unshift(newNote);
-            selectNote(newNote.id);
-            save();
-        }
-
-        function selectNote(id) {
-            activeId = id;
-            const note = notes.find(n => n.id === id);
-            const titleEl = document.getElementById('noteTitle');
-            titleEl.value = note.title;
-            titleEl.style.color = note.titleColor || "var(--text)";
+        function loadNote() {
+            const note = notes.find(n => n.id === activeId);
+            document.getElementById('noteTitle').value = note.title;
             document.getElementById('editor').innerHTML = note.content;
-            document.getElementById('canvasFrame').style.backgroundColor = note.canvasColor || "var(--paper)";
-            renderList();
-        }
-
-        function toggleSelect(id, event) {
-            event.stopPropagation();
-            selectedNotes.has(id) ? selectedNotes.delete(id) : selectedNotes.add(id);
-            selectedNotes.size > 0 ? document.body.classList.add('bulk-mode') : document.body.classList.remove('bulk-mode');
-            renderList();
-        }
-
-        function deleteSelected() {
-            if (confirm(`Delete ${selectedNotes.size} ideas permanently?`)) {
-                notes = notes.filter(n => !selectedNotes.has(n.id));
-                selectedNotes.clear();
-                document.body.classList.remove('bulk-mode');
-                if (notes.length === 0) addNote(); else selectNote(notes[0].id);
-                save();
-            }
-        }
-
-        function deleteNote() {
-            if (confirm("Discard this idea?")) {
-                notes = notes.filter(n => n.id !== activeId);
-                if (notes.length === 0) addNote(); else selectNote(notes[0].id);
-                save();
-            }
+            document.getElementById('canvasFrame').style.backgroundColor = note.color || "var(--paper)";
         }
 
         function autoSave() {
@@ -206,26 +172,45 @@
             if (note) {
                 note.title = document.getElementById('noteTitle').value;
                 note.content = document.getElementById('editor').innerHTML;
-                save();
+                saveData();
+                document.getElementById('saveStatus').innerText = "Syncing...";
+                setTimeout(() => document.getElementById('saveStatus').innerText = "Saved", 800);
             }
         }
 
-        function save() { localStorage.setItem('ZenData', JSON.stringify(notes)); renderList(); }
-
-        function renderList() {
-            const list = document.getElementById('noteList');
-            list.innerHTML = notes.map(n => `
-                <div class="note-item ${n.id === activeId ? 'active' : ''}" onclick="selectNote(${n.id})">
-                    <input type="checkbox" class="select-checkbox" ${selectedNotes.has(n.id) ? 'checked' : ''} onclick="toggleSelect(${n.id}, event)">
-                    <div style="flex:1; overflow:hidden;">
-                        <div style="font-weight:600; white-space:nowrap; text-overflow:ellipsis;">${n.title || 'Untitled Idea'}</div>
-                        <div style="font-size:10px; opacity:0.4;">${new Date(n.id).toLocaleDateString()}</div>
-                    </div>
-                </div>
-            `).join('');
+        function deleteActiveNote() {
+            if(confirm("Permanently delete?")) {
+                notes = notes.filter(n => n.id !== activeId);
+                saveData();
+                exitToHome();
+            }
         }
 
-        init();
+        // --- DASHBOARD RENDER ---
+        function renderDashboard() {
+            const grid = document.getElementById('noteGrid');
+            document.getElementById('statCount').innerText = notes.length;
+            
+            grid.innerHTML = `<div class="note-widget add-new" onclick="enterCanvas(null)"><h2>＋</h2><b>Create Idea</b></div>`;
+            
+            notes.forEach(n => {
+                const widget = document.createElement('div');
+                widget.className = 'note-widget';
+                widget.style.backgroundColor = n.color || 'var(--card-bg)';
+                widget.onclick = () => enterCanvas(n.id);
+                widget.innerHTML = `
+                    <h4>${n.title || 'Draft Idea'}</h4>
+                    <p>${new Date(n.id).toLocaleDateString()}</p>
+                `;
+                grid.appendChild(widget);
+            });
+        }
+
+        function saveData() { localStorage.setItem('BookLandData', JSON.stringify(notes)); }
+        function toggleTheme() { document.body.classList.toggle('light-mode'); }
+
+        renderDashboard();
     </script>
 </body>
-</html>
+    </html>
+    
