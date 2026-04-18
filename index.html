@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ZenNotes Pro v3.1</title>
+    <style>
+        :root {
+            --bg: #0f172a; --surface: #1e293b; --accent: #38bdf8;
+            --text: #f1f5f9; --danger: #ef4444;
+        }
+        * { box-sizing: border-box; transition: all 0.2s ease; }
+        body { 
+            margin: 0; background: var(--bg); color: var(--text); 
+            font-family: sans-serif; height: 100vh; overflow: hidden;
+        }
+        header {
+            height: 70px; padding: 0 20px; display: flex; align-items: center; 
+            justify-content: space-between; background: rgba(30, 41, 59, 0.9);
+            backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .logo { font-weight: bold; color: var(--accent); letter-spacing: 1px; }
+        .view { height: calc(100vh - 70px); width: 100%; position: absolute; padding: 20px; overflow-y: auto; }
+        #listView { left: 0; opacity: 1; }
+        #editView { left: 100%; opacity: 0; background: var(--bg); }
+        body.is-editing #listView { transform: translateX(-20%); opacity: 0; }
+        body.is-editing #editView { left: 0; opacity: 1; }
+
+        /* TITLE INPUT */
+        .title-input {
+            width: 100%; background: transparent; border: none;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            color: var(--accent); font-size: 1.5rem; font-weight: bold;
+            padding: 10px 0; margin-bottom: 20px; outline: none;
+        }
+
+        #editor { width: 100%; min-height: 300px; outline: none; font-size: 1.1rem; line-height: 1.6; }
+
+        .note-card {
+            background: var(--surface); padding: 20px; border-radius: 16px;
+            margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .btn { padding: 8px 12px; border-radius: 8px; border: none; font-size: 0.8rem; cursor: pointer; }
+        .btn-accent { background: var(--accent); color: #000; font-weight: bold; }
+        
+        .fab {
+            position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px;
+            border-radius: 30px; background: var(--accent); border: none;
+            font-size: 24px; box-shadow: 0 10px 20px rgba(56, 189, 248, 0.3);
+        }
+        body.is-editing .fab { display: none; }
+
+        #toast {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: var(--accent); color: #000; padding: 10px 20px;
+            border-radius: 20px; font-size: 0.8rem; font-weight: bold;
+            display: none; z-index: 1000;
+        }
+    </style>
+</head>
+<body id="mainBody">
+
+    <header>
+        <div class="logo" id="headerTitle">ZEN NOTES</div>
+        <div id="editActions" style="display:none; gap:10px;">
+            <button class="btn" onclick="closeNote()">Back</button>
+            <button class="btn btn-accent" onclick="exportTxt()">SAVE TXT</button>
+        </div>
+    </header>
+
+    <div id="listView" class="view">
+        <h2 style="margin-top:0">My Space</h2>
+        <div id="noteList"></div>
+    </div>
+
+    <div id="editView" class="view">
+        <input type="text" id="noteTitle" class="title-input" placeholder="Note Title..." oninput="saveData()">
+        <div id="editor" contenteditable="true" oninput="saveData()" placeholder="Write here..."></div>
+    </div>
+
+    <button class="fab" onclick="createNew()">+</button>
+    <div id="toast">File Saved to Downloads!</div>
+
+    <script>
+        let notes = JSON.parse(localStorage.getItem('ZenNotes_v31')) || [];
+        let activeId = null;
+
+        function renderList() {
+            const list = document.getElementById('noteList');
+            list.innerHTML = notes.map(n => `
+                <div class="note-card" onclick="openNote(${n.id})">
+                    <div style="font-weight:bold; color:#38bdf8">${n.title || 'Untitled'}</div>
+                    <div style="font-size:0.8rem; color:#94a3b8; margin-top:5px;">${n.preview || 'No content...'}</div>
+                </div>
+            `).join('');
+        }
+
+        function createNew() {
+            activeId = Date.now();
+            notes.unshift({ id: activeId, title: "", content: "", preview: "" });
+            openNote(activeId);
+            setTimeout(() => document.getElementById('noteTitle').focus(), 300);
+        }
+
+        function openNote(id) {
+            activeId = id;
+            const note = notes.find(n => n.id === id);
+            document.getElementById('noteTitle').value = note.title;
+            document.getElementById('editor').innerHTML = note.content;
+            document.getElementById('mainBody').classList.add('is-editing');
+            document.getElementById('editActions').style.display = 'flex';
+            document.getElementById('headerTitle').innerText = "EDITING";
+        }
+
+        function closeNote() {
+            document.getElementById('mainBody').classList.remove('is-editing');
+            document.getElementById('editActions').style.display = 'none';
+            document.getElementById('headerTitle').innerText = "ZEN NOTES";
+            renderList();
+        }
+
+        function saveData() {
+            const title = document.getElementById('noteTitle').value;
+            const content = document.getElementById('editor').innerHTML;
+            const preview = document.getElementById('editor').innerText.substring(0, 50);
+            const index = notes.findIndex(n => n.id === activeId);
+            notes[index].title = title;
+            notes[index].content = content;
+            notes[index].preview = preview;
+            localStorage.setItem('ZenNotes_v31', JSON.stringify(notes));
+        }
+
+        function exportTxt() {
+            const title = document.getElementById('noteTitle').value || "Untitled";
+            const text = document.getElementById('editor').innerText;
+            const blob = new Blob([text], {type: 'text/plain'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = title + ".txt";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            // Show toast
+            const toast = document.getElementById('toast');
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 3000);
+        }
+
+        renderList();
+    </script>
+</body>
+</html>
