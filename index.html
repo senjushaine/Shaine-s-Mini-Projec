@@ -21,83 +21,82 @@
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body, html { margin: 0; padding: 0; font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; transition: background 0.3s; }
+        body, html { margin: 0; padding: 0; font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
 
-        /* --- NAVIGATION --- */
-        .screen { position: fixed; inset: 0; width: 100%; height: 100%; display: none; flex-direction: column; overflow: hidden; background: var(--bg); z-index: 10; }
-        .active-screen { display: flex; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* --- NEXT-LEVEL ANIMATIONS --- */
+        .screen { 
+            position: fixed; inset: 0; width: 100%; height: 100%; display: none; 
+            flex-direction: column; overflow: hidden; background: var(--bg); z-index: 10;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .active-screen { 
+            display: flex; 
+            animation: slideUp 0.5s ease-out; 
+        }
+        @keyframes slideUp { 
+            from { opacity: 0; transform: translateY(30px) scale(0.95); } 
+            to { opacity: 1; transform: translateY(0) scale(1); } 
+        }
 
         /* --- HOME SCREEN --- */
         #homeScreen { padding: 30px 20px; overflow-y: auto; }
-        .logo-container { margin-bottom: 30px; }
         .logo-main { font-family: 'Pacifico', cursive; font-size: 2.2rem; background: var(--logo-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; }
-        .logo-sub { font-size: 0.8rem; opacity: 0.7; font-weight: 300; letter-spacing: 1px; margin-top: 5px; }
+        .logo-sub { font-size: 0.8rem; opacity: 0.7; font-weight: 300; margin-top: 5px; }
         
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
-        .stat-card { background: var(--card-bg); padding: 15px; border-radius: 18px; border: 1px solid var(--border); }
-        .stat-card p { margin: 5px 0 0; font-size: 1.5rem; font-weight: 700; color: var(--accent); }
-
-        .note-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; padding-bottom: 40px; }
-        .note-widget { background: var(--card-bg); height: 160px; padding: 15px; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; }
-        .note-widget h4 { margin: 0; font-size: 0.95rem; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
-        .add-new { background: var(--logo-grad); color: white; border: none; align-items: center; justify-content: center; text-align: center; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 25px 0; }
+        .stat-card { background: var(--card-bg); padding: 15px; border-radius: 18px; border: 1px solid var(--border); backdrop-filter: blur(10px); }
+        .note-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+        .note-widget { background: var(--card-bg); height: 160px; padding: 15px; border-radius: 20px; border: 1px solid var(--border); transition: transform 0.2s; }
+        .note-widget:active { transform: scale(0.95); }
+        .add-new { background: var(--logo-grad); color: white; border: none; align-items: center; justify-content: center; }
 
         /* --- CANVAS SCREEN --- */
         #canvasScreen { flex-direction: row; }
-        
-        /* DYNAMIC TOOLBAR */
         #sideToolbar { 
-            width: 60px; background: var(--sidebar); border-right: 1px solid var(--border); 
-            display: flex; flex-direction: column; align-items: center; padding: 15px 0; gap: 12px;
-            transition: transform 0.3s ease, width 0.3s ease; z-index: 100;
+            width: 75px; background: var(--sidebar); border-right: 1px solid var(--border); 
+            display: flex; flex-direction: column; align-items: center; padding: 15px 0; gap: 10px;
+            transition: transform 0.3s ease;
         }
-        .toolbar-hidden #sideToolbar { width: 0; transform: translateX(-60px); padding: 0; border: none; }
-        
+        .toolbar-hidden #sideToolbar { transform: translateX(-100%); width: 0; padding: 0; }
+
         .toolbar-toggle {
-            position: absolute; bottom: 20px; left: 10px; width: 40px; height: 40px;
+            position: absolute; bottom: 25px; left: 15px; width: 45px; height: 45px;
             background: var(--accent); color: white; border-radius: 50%; border: none;
-            z-index: 110; display: flex; align-items: center; justify-content: center; font-weight: bold;
+            z-index: 110; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
         }
 
-        .editor-container { flex: 1; display: flex; flex-direction: column; position: relative; }
-        .canvas-header { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; }
-        .exit-btn { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 6px 12px; border-radius: 10px; font-weight: 600; cursor: pointer; }
-
-        /* EXPANDED CANVAS */
         .paper-canvas { 
-            flex: 1; margin: 0 10px 10px 10px; border-radius: 20px; 
-            background: var(--paper); border: 1px solid var(--border); 
-            display: flex; flex-direction: column; overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            flex: 1; margin: 10px; border-radius: 20px; background: var(--paper); 
+            border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden;
         }
-        #editor { flex: 1; padding: 0 25px 30px; outline: none; overflow-y: auto; font-size: 1.1rem; line-height: 1.6; }
+        #editor { flex: 1; padding: 0 25px 30px; outline: none; overflow-y: auto; font-size: 1.1rem; }
         #noteTitle { width: 100%; background: transparent; border: none; color: var(--text); font-size: 1.8rem; font-weight: 700; padding: 25px 25px 10px; outline: none; }
 
-        .tool-btn { width: 38px; height: 38px; border-radius: 8px; border: none; background: transparent; color: var(--text); cursor: pointer; font-size: 1.1rem; }
-        .tool-btn:hover { background: rgba(255,255,255,0.1); }
-        .divider { width: 30px; height: 1px; background: var(--border); margin: 4px 0; }
+        /* TOOL STYLES */
+        .color-label { font-size: 0.6rem; text-transform: uppercase; margin-top: -5px; opacity: 0.6; text-align: center; }
+        .tool-btn { width: 40px; height: 40px; border-radius: 10px; border: none; background: transparent; color: var(--text); cursor: pointer; }
+        .divider { width: 40px; height: 1px; background: var(--border); }
+        
+        /* THE COLOR PICKER WRAPPER */
+        .picker-box { display: flex; flex-direction: column; align-items: center; gap: 2px; }
     </style>
 </head>
-<body class="dark-mode">
+<body class="dark-mode" spellcheck="true">
 
     <section id="homeScreen" class="screen active-screen">
         <div class="logo-container">
             <div class="logo-main">Idea BookLand</div>
             <div class="logo-sub">by Shaine Khant Paing</div>
         </div>
-
         <div class="stats-grid">
             <div class="stat-card"><span>Total Ideas</span><p id="statCount">0</p></div>
-            <div class="stat-card" onclick="toggleTheme()" style="cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:600;">🌓 Mode</div>
+            <div class="stat-card" onclick="toggleTheme()" style="display:flex; align-items:center; justify-content:center;">🌓 Mode</div>
         </div>
-
         <div class="note-grid" id="noteGrid"></div>
     </section>
 
     <section id="canvasScreen" class="screen">
         <button class="toolbar-toggle" onclick="toggleToolbar()">⚒</button>
-        
         <aside id="sideToolbar">
             <button class="tool-btn" onclick="exitToHome()">🏠</button>
             <div class="divider"></div>
@@ -105,21 +104,24 @@
             <button class="tool-btn" onclick="exec('italic')"><i>I</i></button>
             <button class="tool-btn" onclick="exec('underline')"><u>U</u></button>
             <button class="tool-btn" onclick="exec('strikeThrough')"><s>S</s></button>
+            <button class="tool-btn" onclick="exec('hiliteColor', '#FFE964')" title="Highlight">🖍</button>
             <div class="divider"></div>
-            <button class="tool-btn" onclick="exec('justifyLeft')">⬅</button>
-            <button class="tool-btn" onclick="exec('justifyCenter')">↔</button>
-            <div class="divider"></div>
-            <input type="color" onchange="exec('foreColor', this.value)" style="width:25px; height:25px; border:none; background:none; cursor:pointer;">
-            <input type="color" onchange="updateCanvasColor(this.value)" style="width:25px; height:25px; border:2px solid white; border-radius:50%; background:none; cursor:pointer;">
+            <div class="picker-box">
+                <input type="color" onchange="exec('foreColor', this.value)" id="tColor" style="width:30px; height:30px; border:none; background:none;">
+                <span class="color-label">Text</span>
+            </div>
+            <div class="picker-box">
+                <input type="color" onchange="updateCanvasColor(this.value)" id="cColor" style="width:30px; height:30px; border:2px solid white; border-radius:50%; background:none;">
+                <span class="color-label">Canvas</span>
+            </div>
             <button class="tool-btn" onclick="deleteActiveNote()" style="margin-top: auto; color: #FC2220;">🗑</button>
         </aside>
 
-        <div class="editor-container">
-            <header class="canvas-header">
-                <span id="saveStatus" style="font-size: 0.7rem; opacity: 0.4;">Synced</span>
-                <button class="exit-btn" onclick="exitToHome()">Exit ➜</button>
+        <div style="flex:1; display:flex; flex-direction:column;">
+            <header style="padding:10px 15px; display:flex; justify-content:space-between; align-items:center;">
+                <span id="saveStatus" style="font-size:0.7rem; opacity:0.4;">Synced</span>
+                <button class="exit-btn" onclick="exitToHome()" style="background:var(--card-bg); color:white; border:none; padding:8px 15px; border-radius:10px;">Exit ➜</button>
             </header>
-
             <div class="paper-canvas" id="canvasFrame">
                 <input type="text" id="noteTitle" placeholder="Idea Title..." oninput="autoSave()">
                 <div id="editor" contenteditable="true" oninput="autoSave()"></div>
@@ -131,8 +133,15 @@
         let notes = JSON.parse(localStorage.getItem('BookLandData')) || [];
         let activeId = null;
 
+        // GOODNOTES PALETTE INJECTION
+        const goodColors = ["#EE7EA0", "#FFA9BA", "#FFD7D6", "#FF9797", "#EA7D70", "#F65353", "#D20000", "#FD5E00", "#F58553", "#FFA07A", "#FBBF9B", "#FFAF6E", "#F59A23", "#FCB55C", "#FFCC80", "#FFD6A2", "#EEB649", "#CE8540", "#FEF7B5", "#F6DE6C", "#F7CE15", "#BCC07B", "#DBE098", "#C1DB9E", "#91CA57", "#669E63", "#007355", "#007D75"];
+
         function toggleToolbar() { document.body.classList.toggle('toolbar-hidden'); }
-        function exitToHome() { document.getElementById('canvasScreen').classList.remove('active-screen'); document.getElementById('homeScreen').classList.add('active-screen'); renderDashboard(); }
+        function exitToHome() { 
+            document.getElementById('canvasScreen').classList.remove('active-screen'); 
+            document.getElementById('homeScreen').classList.add('active-screen'); 
+            renderDashboard(); 
+        }
 
         function enterCanvas(id) {
             if (!id) {
@@ -144,11 +153,15 @@
             document.getElementById('canvasScreen').classList.add('active-screen');
         }
 
-        function exec(cmd, val = null) { document.getElementById('editor').focus(); document.execCommand(cmd, false, val); autoSave(); }
+        function exec(cmd, val = null) { 
+            document.getElementById('editor').focus(); 
+            document.execCommand(cmd, false, val); 
+            autoSave(); 
+        }
 
         function updateCanvasColor(color) { 
             document.getElementById('canvasFrame').style.backgroundColor = color; 
-            const note = notes.find(n => n.id === activeId); if (note) note.color = color; saveData(); 
+            notes.find(n => n.id === activeId).color = color; saveData(); 
         }
 
         function loadNote() {
