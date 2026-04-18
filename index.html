@@ -3,139 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Idea BookLand</title>
+    <title>Idea BookLand Pro</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@400;600&display=swap');
 
         :root {
-            /* Palette Integration */
             --bg: #0f172a; --sidebar: #1e293b; --text: #f1f5f9;
             --accent: #38bdf8; --border: #334155; --paper: #1e293b;
-            --logo-grad: linear-gradient(45deg, #FE0D6D, #00A1D8); /* Pink to Blue from palette */
-            --btn-grad: linear-gradient(135deg, #00BFC0, #3EC5A2); /* Teal to Mint from palette */
-            --item-active: #FFE964; /* Yellow highlight from palette */
+            --logo-grad: linear-gradient(45deg, #FE0D6D, #00A1D8);
+            --btn-grad: linear-gradient(135deg, #00BFC0, #3EC5A2);
         }
         .light-mode {
             --bg: #f8fafc; --sidebar: #ffffff; --text: #0f172a;
             --accent: #0284c7; --border: #cbd5e1; --paper: #ffffff;
-            --logo-grad: linear-gradient(45deg, #F25452, #FF9A19); /* Red to Orange from palette */
+            --logo-grad: linear-gradient(45deg, #F25452, #FF9A19);
         }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; transition: 0.3s; }
-        body { 
-            margin: 0; font-family: 'Poppins', sans-serif; 
-            background: var(--bg); color: var(--text); height: 100vh; display: flex; overflow: hidden;
-        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; transition: background 0.3s; }
+        body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; overflow: hidden; }
 
-        /* Sidebar & Branding */
-        #sidebar {
-            width: 280px; background: var(--sidebar); border-right: 1px solid var(--border);
-            display: flex; flex-direction: column; z-index: 100;
-        }
+        /* Sidebar & Multi-Select */
+        #sidebar { width: 280px; background: var(--sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 100; }
         .sidebar-hidden #sidebar { margin-left: -280px; }
+        .logo-area { padding: 25px 20px; font-family: 'Pacifico', cursive; font-size: 1.6rem; background: var(--logo-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; justify-content: space-between; align-items: center; }
         
-        .logo-area {
-            padding: 25px 20px; font-family: 'Pacifico', cursive; font-size: 1.6rem;
-            background: var(--logo-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-
-        .btn-new {
-            margin: 10px 20px; padding: 14px; background: var(--btn-grad); color: #fff;
-            border: none; border-radius: 15px; font-weight: bold; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 191, 192, 0.3);
-        }
-
         .note-list { flex: 1; overflow-y: auto; padding: 15px; }
-        .note-item {
-            padding: 15px; border-radius: 12px; margin-bottom: 10px; cursor: pointer;
-            border: 1px solid var(--border); background: rgba(255,255,255,0.02);
-        }
-        .note-item.active { 
-            border: 2px solid var(--item-active); 
-            background: rgba(255, 233, 100, 0.08); 
-        }
+        .note-item { padding: 12px; border-radius: 12px; margin-bottom: 10px; cursor: pointer; border: 1px solid var(--border); position: relative; display: flex; align-items: flex-start; gap: 10px; }
+        .note-item.active { border: 2px solid #FFE964; background: rgba(255, 233, 100, 0.05); }
+        .select-checkbox { width: 18px; height: 18px; cursor: pointer; accent-color: #3EC5A2; margin-top: 4px; }
 
-        /* Main Area & Canvas */
+        /* Canvas & Toolbar */
         #main { flex: 1; display: flex; flex-direction: column; position: relative; }
-        header { 
-            padding: 12px 20px; display: flex; justify-content: space-between; 
-            align-items: center; border-bottom: 1px solid var(--border); background: var(--sidebar);
-        }
+        .paper-canvas { flex: 1; background: var(--paper); border: 2.5px solid var(--border); border-radius: 20px; margin: 15px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        
+        .toolbar { padding: 10px; display: flex; gap: 8px; flex-wrap: wrap; border-bottom: 1px solid var(--border); background: var(--sidebar); align-items: center; }
+        .tool-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); padding: 8px; border-radius: 8px; cursor: pointer; }
+        .color-label { font-size: 10px; opacity: 0.7; margin-right: -4px; }
 
-        .editor-wrapper { flex: 1; padding: 20px; background: var(--bg); }
-        .paper-canvas {
-            flex: 1; background: var(--paper); border: 2.5px solid var(--border);
-            border-radius: 20px; display: flex; flex-direction: column; height: 100%;
-            overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
+        #editor { flex: 1; outline: none; padding: 20px; overflow-y: auto; line-height: 1.8; font-size: 1.1rem; }
+        #noteTitle { background: transparent; border: none; color: var(--text); font-size: 1.8rem; font-weight: 600; padding: 20px 20px 0; outline: none; width: 100%; }
 
-        .toolbar {
-            padding: 10px; display: flex; gap: 8px; flex-wrap: wrap;
-            border-bottom: 1px solid var(--border); background: var(--sidebar);
-        }
-        .tool-btn {
-            background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text);
-            padding: 6px 10px; border-radius: 8px; cursor: pointer;
-        }
+        header { padding: 12px 20px; display: flex; justify-content: space-between; background: var(--sidebar); border-bottom: 1px solid var(--border); }
+        .bulk-actions { display: none; gap: 10px; }
+        .bulk-mode .bulk-actions { display: flex; }
 
-        #noteTitle {
-            background: transparent; border: none; color: var(--text);
-            font-size: 1.8rem; font-weight: 600; padding: 20px; outline: none; width: 100%;
-        }
-        #editor { flex: 1; outline: none; padding: 0 20px 20px; overflow-y: auto; line-height: 1.8; font-size: 1.1rem; }
-
-        .btn-icon { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); padding: 10px; border-radius: 12px; }
-
-        @media (max-width: 600px) {
-            #sidebar { position: absolute; height: 100%; }
-            .sidebar-hidden #sidebar { transform: translateX(-100%); }
-        }
+        @media (max-width: 600px) { #sidebar { position: absolute; height: 100%; } .sidebar-hidden #sidebar { transform: translateX(-100%); } }
     </style>
 </head>
 <body class="sidebar-hidden">
 
     <aside id="sidebar">
-        <div class="logo-area">
-            <span>Idea BookLand</span>
-            <button class="btn-icon" onclick="toggleSidebar()" style="font-size: 1rem;">✕</button>
-        </div>
-        <button onclick="addNote()" class="btn-new">✨ CREATE NEW IDEA</button>
+        <div class="logo-area"><span>Idea BookLand</span><button class="tool-btn" onclick="toggleSidebar()">✕</button></div>
+        <button onclick="addNote()" class="tool-btn" style="margin: 0 20px 10px; background: var(--btn-grad); color: white; font-weight: bold; border:none;">＋ NEW IDEA</button>
         <div id="noteList" class="note-list"></div>
     </aside>
 
     <main id="main">
         <header>
-            <button class="btn-icon" onclick="toggleSidebar()">☰ Menu</button>
-            <div style="display: flex; gap: 10px;">
-                <button class="btn-icon" onclick="toggleTheme()">🌓 Theme</button>
-                <button class="btn-icon" onclick="deleteNote()" style="color: #FC2220;">🗑 Delete</button>
+            <button class="tool-btn" onclick="toggleSidebar()">☰ Menu</button>
+            <div class="bulk-actions">
+                <button class="tool-btn" onclick="deleteSelected()" style="color: #FC2220;">🗑 Delete Selected</button>
+                <button class="tool-btn" onclick="exitBulk()">Cancel</button>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button class="tool-btn" onclick="toggleTheme()">🌓 Theme</button>
+                <button class="tool-btn" onclick="deleteNote()" style="color: #FC2220;">🗑</button>
             </div>
         </header>
 
-        <div class="editor-wrapper">
-            <div class="paper-canvas">
-                <div class="toolbar">
-                    <button class="tool-btn" onclick="exec('bold')"><b>B</b></button>
-                    <button class="tool-btn" onclick="exec('italic')"><i>I</i></button>
-                    <button class="tool-btn" onclick="exec('underline')"><u>U</u></button>
-                    <select class="tool-btn" onchange="exec('formatBlock', this.value)">
-                        <option value="P">Text</option>
-                        <option value="H1">Title</option>
-                        <option value="H2">Subtitle</option>
-                    </select>
-                    <input type="color" onchange="exec('foreColor', this.value)" title="Text Color" style="width:30px; height:30px; cursor:pointer;">
-                </div>
-                <input type="text" id="noteTitle" placeholder="My Brilliant Idea..." oninput="autoSave()">
-                <div id="editor" contenteditable="true" oninput="autoSave()"></div>
+        <div class="paper-canvas" id="canvasFrame">
+            <div class="toolbar">
+                <button class="tool-btn" onclick="exec('bold')"><b>B</b></button>
+                <button class="tool-btn" onclick="exec('italic')"><i>I</i></button>
+                <span class="color-label">Text:</span>
+                <input type="color" id="foreColor" onchange="exec('foreColor', this.value)" style="width:30px; height:30px; border:none; background:none; padding:0;">
+                <span class="color-label">Canvas:</span>
+                <input type="color" id="bgColor" onchange="changeCanvasColor(this.value)" style="width:30px; height:30px; border:none; background:none; padding:0;">
+                <select class="tool-btn" onchange="exec('fontName', this.value)">
+                    <option value="Poppins">Sans</option>
+                    <option value="serif">Serif</option>
+                    <option value="monospace">Mono</option>
+                </select>
             </div>
+            <input type="text" id="noteTitle" placeholder="Idea Title..." oninput="autoSave()">
+            <div id="editor" contenteditable="true" oninput="autoSave()"></div>
         </div>
     </main>
 
     <script>
         let notes = JSON.parse(localStorage.getItem('ZenData')) || [];
         let activeId = null;
+        let selectedNotes = new Set();
 
-        function exec(cmd, val = null) { document.execCommand(cmd, false, val); autoSave(); }
+        // 1. IMPROVED TEXT EDITOR: Set color first, then type
+        function exec(cmd, val = null) {
+            document.getElementById('editor').focus();
+            document.execCommand(cmd, false, val);
+            autoSave();
+        }
+
+        // 2. CANVAS COLOR CHANGE
+        function changeCanvasColor(color) {
+            const canvas = document.getElementById('canvasFrame');
+            canvas.style.backgroundColor = color;
+            const note = notes.find(n => n.id === activeId);
+            if (note) note.canvasColor = color;
+            save();
+        }
+
+        function toggleSidebar() { document.body.classList.toggle('sidebar-hidden'); }
 
         function toggleTheme() {
             document.body.classList.toggle('light-mode');
@@ -150,7 +125,7 @@
         }
 
         function addNote() {
-            const newNote = { id: Date.now(), title: "New Idea", content: "Unleash your creativity..." };
+            const newNote = { id: Date.now(), title: "New Idea", content: "...", canvasColor: "" };
             notes.unshift(newNote);
             selectNote(newNote.id);
             save();
@@ -161,24 +136,53 @@
             const note = notes.find(n => n.id === id);
             document.getElementById('noteTitle').value = note.title;
             document.getElementById('editor').innerHTML = note.content;
-            if (window.innerWidth < 600) document.body.classList.add('sidebar-hidden');
+            document.getElementById('canvasFrame').style.backgroundColor = note.canvasColor || "var(--paper)";
+            document.getElementById('bgColor').value = note.canvasColor || "#1e293b";
             renderList();
+        }
+
+        // 3. MULTI-SELECT FUNCTIONALITY
+        function toggleSelect(id, event) {
+            event.stopPropagation();
+            if (selectedNotes.has(id)) selectedNotes.delete(id);
+            else selectedNotes.add(id);
+            
+            if (selectedNotes.size > 0) document.body.classList.add('bulk-mode');
+            else document.body.classList.remove('bulk-mode');
+            renderList();
+        }
+
+        function deleteSelected() {
+            if (confirm(`Delete ${selectedNotes.size} notes?`)) {
+                notes = notes.filter(n => !selectedNotes.has(n.id));
+                selectedNotes.clear();
+                document.body.classList.remove('bulk-mode');
+                if (notes.length === 0) addNote();
+                else selectNote(notes[0].id);
+                save();
+            }
+        }
+
+        function exitBulk() {
+            selectedNotes.clear();
+            document.body.classList.remove('bulk-mode');
+            renderList();
+        }
+
+        function deleteNote() {
+            if (confirm("Delete current note?")) {
+                notes = notes.filter(n => n.id !== activeId);
+                if (notes.length === 0) addNote();
+                else selectNote(notes[0].id);
+                save();
+            }
         }
 
         function autoSave() {
             const note = notes.find(n => n.id === activeId);
             if (note) {
-                note.title = document.getElementById('noteTitle').value || "New Idea";
+                note.title = document.getElementById('noteTitle').value;
                 note.content = document.getElementById('editor').innerHTML;
-                save();
-            }
-        }
-
-        function deleteNote() {
-            if (confirm("Discard this idea?")) {
-                notes = notes.filter(n => n.id !== activeId);
-                if (notes.length === 0) addNote();
-                else selectNote(notes[0].id);
                 save();
             }
         }
@@ -192,15 +196,17 @@
             const list = document.getElementById('noteList');
             list.innerHTML = notes.map(n => `
                 <div class="note-item ${n.id === activeId ? 'active' : ''}" onclick="selectNote(${n.id})">
-                    <div style="font-weight:600; font-size: 0.95rem;">${n.title}</div>
-                    <div style="font-size:0.7rem; opacity:0.6; margin-top:5px;">${new Date(n.id).toLocaleDateString()}</div>
+                    <input type="checkbox" class="select-checkbox" ${selectedNotes.has(n.id) ? 'checked' : ''} onclick="toggleSelect(${n.id}, event)">
+                    <div style="overflow:hidden;">
+                        <div style="font-weight:600; white-space:nowrap; text-overflow:ellipsis;">${n.title || 'Untitled'}</div>
+                        <div style="font-size:10px; opacity:0.5;">${new Date(n.id).toLocaleDateString()}</div>
+                    </div>
                 </div>
             `).join('');
         }
 
-        function toggleSidebar() { document.body.classList.toggle('sidebar-hidden'); }
         init();
     </script>
 </body>
-                        </html>
-                        
+                    </html>
+                    
