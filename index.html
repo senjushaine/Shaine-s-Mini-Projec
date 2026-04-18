@@ -22,17 +22,18 @@
             --border: rgba(0,0,0,0.1); --paper: #ffffff;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; transition: background 0.3s, color 0.3s; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; transition: background 0.4s, color 0.4s; }
         body, html { margin: 0; padding: 0; font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
 
         /* --- DYNAMIC TRANSITIONS --- */
-        .screen { position: fixed; inset: 0; display: none; opacity: 0; transform: scale(0.95); transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
-        .screen.active { display: flex; opacity: 1; transform: scale(1); }
+        .screen { position: fixed; inset: 0; display: none; opacity: 0; transform: translateY(20px); transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .screen.active { display: flex; opacity: 1; transform: translateY(0); }
 
         /* --- HOME SCREEN --- */
         #homeScreen { flex-direction: column; padding: 0 25px 120px; overflow-y: auto; }
-        .logo-area { padding: 50px 0 30px; display: flex; justify-content: space-between; align-items: center; }
-        .logo-main { font-family: 'Pacifico', cursive; font-size: 2.6rem; background: linear-gradient(45deg, #00A1D8, #FE0D6D); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .logo-area { padding: 50px 0 30px; display: flex; justify-content: space-between; align-items: flex-start; }
+        .logo-main { font-family: 'Pacifico', cursive; font-size: 2.6rem; background: linear-gradient(45deg, #00A1D8, #FE0D6D); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.2; }
+        .user-credit { opacity: 0.6; font-size: 0.85rem; font-weight: 400; margin-top: -5px; letter-spacing: 0.5px; }
         
         .note-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px; width: 100%; }
         .note-card { 
@@ -52,14 +53,13 @@
         .del-overlay { position: absolute; inset: 0; background: rgba(255, 30, 30, 0.85); display: none; align-items: center; justify-content: center; z-index: 5; font-size: 2rem; color: white; }
         .shaking .del-overlay { display: flex; }
 
-        /* --- MAXIMIZED CANVAS & DOC TOOLS --- */
+        /* --- MAXIMIZED CANVAS --- */
         #canvasScreen { flex-direction: row; }
         #sideBar { width: 75px; background: var(--sidebar); display: flex; flex-direction: column; align-items: center; padding: 15px 0; border-right: 1px solid var(--border); transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); z-index: 100; }
         .toolbar-hidden #sideBar { margin-left: -75px; opacity: 0; }
 
         .t-btn { width: 50px; height: 50px; border-radius: 12px; border: none; background: transparent; color: var(--text); font-size: 1.3rem; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; }
         .t-btn:active { background: rgba(0,0,0,0.1); transform: scale(0.9); }
-        .t-btn.active-tool { background: var(--accent); color: white; }
 
         /* PALETTE POPUP */
         .palette-popup {
@@ -71,7 +71,7 @@
         .color-dot { width: 35px; height: 35px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.2); }
 
         .editor-space { flex: 1; display: flex; flex-direction: column; background: var(--paper); }
-        #editor { flex: 1; padding: 10px 30px 100px; font-size: 1.2rem; overflow-y: auto; line-height: 1.8; color: var(--text); }
+        #editor { flex: 1; padding: 10px 30px 100px; font-size: 1.25rem; overflow-y: auto; line-height: 1.8; color: var(--text); }
         #titleInput { width: 100%; border: none; background: transparent; color: var(--text); font-size: 2.2rem; font-weight: 700; padding: 40px 30px 10px; font-family: 'Playfair Display', serif; }
 
         /* UTILS */
@@ -86,7 +86,7 @@
         <div class="logo-area">
             <div>
                 <div class="logo-main">Idea BookLand</div>
-                <p style="opacity: 0.5; font-size: 0.8rem; margin: 0;">Premium Digital Workspace</p>
+                <div class="user-credit">by Shaine Khant Paing</div>
             </div>
             <button class="t-btn" onclick="toggleTheme()" style="font-size: 1.5rem;">🌓</button>
         </div>
@@ -107,9 +107,8 @@
             <button class="t-btn" onclick="doc('strikeThrough')"><s>S</s></button>
             <button class="t-btn" onclick="doc('insertUnorderedList')">●</button>
             <button class="t-btn" onclick="doc('justifyCenter')">≡</button>
-            <button class="t-btn" onclick="doc('formatBlock', 'H1')">H1</button>
             <div style="margin-top:auto; display: flex; flex-direction: column; gap: 10px;">
-                <button class="t-btn" onclick="pop('text')">A</button>
+                <button class="t-btn" onclick="pop('text')" style="font-weight:bold; font-size:1.1rem; color:var(--accent);">A</button>
                 <button class="t-btn" onclick="pop('paper')" style="background:#FE0D6D; color:white; border-radius: 50%;">🎨</button>
             </div>
         </aside>
@@ -117,23 +116,23 @@
         <div id="palettePop" class="palette-popup"></div>
 
         <div class="editor-space" id="canvasBg">
-            <header style="padding:15px 30px; display:flex; justify-content:space-between; align-items: center; opacity: 0.6;">
-                <span style="font-size:0.7rem; font-weight:700; letter-spacing:1px;">AUTOSAVE ON</span>
-                <span id="saveStatus" style="font-size:0.7rem;">Synced</span>
+            <header style="padding:15px 30px; display:flex; justify-content:space-between; align-items: center; opacity: 0.5;">
+                <span style="font-size:0.7rem; font-weight:700; letter-spacing:1px;">SYNCED CLOUD</span>
+                <span id="saveStatus" style="font-size:0.7rem;">Ready</span>
             </header>
-            <input type="text" id="titleInput" placeholder="Note Title" oninput="save()">
+            <input type="text" id="titleInput" placeholder="Title your idea..." oninput="save()">
             <div id="editor" contenteditable="true" oninput="save()"></div>
         </div>
     </section>
 
     <script>
-        let db = JSON.parse(localStorage.getItem('BookLandUltra')) || [];
+        let db = JSON.parse(localStorage.getItem('BookLandMaster')) || [];
         let activeId = null;
         let editMode = false;
         let timer;
         let paletteType = 'paper';
 
-        // PREMIUM PALETTE
+        // GOODNOTES PREMIUM PALETTE
         const premiumColors = ["#EE7EA0", "#FE0D6D", "#00A1D8", "#00BFC0", "#91CA57", "#F7CE15", "#FD5E00", "#7851A5", "#363636", "#AAAAAA", "#F1ECEA", "#FFFFFF"];
         const themeStyles = ['pink', 'blue', 'purple', 'orange'];
 
@@ -160,7 +159,7 @@
 
                 card.innerHTML = `
                     <div class="del-overlay" onclick="removeNote(event, ${n.id})">🗑️</div>
-                    <h4 style="margin:0; font-size:1.2rem;">${n.title || 'Draft'}</h4>
+                    <h4 style="margin:0; font-size:1.25rem; line-height:1.2;">${n.title || 'Untitled'}</h4>
                     <p style="font-size:0.7rem; opacity:0.6; margin-top:auto;">${new Date(n.id).toLocaleDateString()}</p>
                 `;
                 
@@ -199,11 +198,15 @@
         function closeNote() { switchScreen('homeScreen'); renderHome(); }
 
         function switchScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.screen').forEach(s => {
+                s.classList.remove('active');
+                setTimeout(() => s.style.display = 'none', 500);
+            });
             setTimeout(() => {
-                document.getElementById(id).style.display = 'flex';
-                setTimeout(() => document.getElementById(id).classList.add('active'), 50);
-            }, 100);
+                const target = document.getElementById(id);
+                target.style.display = 'flex';
+                setTimeout(() => target.classList.add('active'), 50);
+            }, 550);
         }
 
         function doc(cmd, val = null) { document.execCommand(cmd, false, val); save(); }
@@ -226,12 +229,12 @@
                 n.title = document.getElementById('titleInput').value;
                 n.content = document.getElementById('editor').innerHTML;
                 sync();
-                document.getElementById('saveStatus').innerText = "Saved";
-                setTimeout(() => document.getElementById('saveStatus').innerText = "Synced", 1000);
+                document.getElementById('saveStatus').innerText = "Saving...";
+                setTimeout(() => document.getElementById('saveStatus').innerText = "Synced", 800);
             }
         }
 
-        function sync() { localStorage.setItem('BookLandUltra', JSON.stringify(db)); }
+        function sync() { localStorage.setItem('BookLandMaster', JSON.stringify(db)); }
         function toggleTheme() { document.body.classList.toggle('light-mode'); }
 
         init();
