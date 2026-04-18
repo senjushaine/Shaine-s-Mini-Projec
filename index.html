@@ -11,115 +11,111 @@
             --bg: #0f172a; --sidebar: #1e293b; --text: #f1f5f9;
             --border: rgba(255,255,255,0.1); --paper: #1e293b;
             --accent: #00BFC0;
-            --grad-main: linear-gradient(45deg, #00A1D8, #FE0D6D);
         }
 
-        .light-mode {
-            --bg: #f8fafc; --sidebar: #ffffff; --text: #0f172a;
-            --border: rgba(0,0,0,0.08); --paper: #ffffff;
-        }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; transition: background 0.4s; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html { margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
 
-        .screen { position: fixed; inset: 0; display: none; opacity: 0; transform: translateY(10px); transition: all 0.4s ease; }
-        .screen.active { display: flex; opacity: 1; transform: translateY(0); }
+        .screen { position: fixed; inset: 0; display: none; opacity: 0; transition: 0.3s ease; }
+        .screen.active { display: flex; opacity: 1; }
 
         /* --- DASHBOARD --- */
-        #homeScreen { flex-direction: column; padding: 30px 25px; overflow-y: auto; }
-        .logo-main { font-family: 'Pacifico', cursive; font-size: 2.4rem; background: var(--grad-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        #homeScreen { flex-direction: column; padding: 40px 25px; overflow-y: auto; }
+        .logo-main { font-family: 'Pacifico', cursive; font-size: 2.2rem; color: #FE0D6D; margin: 0; }
+        .user-sig { font-size: 0.85rem; opacity: 0.6; margin-top: -5px; margin-bottom: 25px; }
         
-        .stats-row { display: flex; gap: 15px; margin: 25px 0; }
-        .stat-card { flex: 1; background: var(--sidebar); padding: 20px; border-radius: 24px; border: 1px solid var(--border); }
-        .stat-val { font-size: 1.8rem; font-weight: 700; color: #F7CE15; display: block; }
+        .stats-row { display: flex; gap: 12px; margin-bottom: 30px; }
+        .stat-card { flex: 1; background: var(--sidebar); padding: 18px; border-radius: 22px; border: 1px solid var(--border); }
+        .stat-val { font-size: 1.6rem; font-weight: 700; display: block; }
         
-        .note-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .note-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         .widget-new { 
-            background: linear-gradient(135deg, #FE0D6D 0%, #00A1D8 100%); 
-            aspect-ratio: 1/1; border-radius: 28px; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; color: white; font-weight: 700; cursor: pointer;
+            background: linear-gradient(135deg, #FE0D6D, #00A1D8); 
+            aspect-ratio: 1/1; border-radius: 25px; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; color: white; font-weight: 700;
         }
+
+        /* Stealth Select Button with Icon */
+        .select-btn { 
+            display: none; background: rgba(255,255,255,0.1); border: 1px solid var(--border); color: white; 
+            padding: 12px; border-radius: 15px; margin-bottom: 15px; width: 100%; font-weight: 600;
+        }
+
+        .shaking { animation: shake 0.3s infinite; border: 2px solid #FE0D6D !important; opacity: 0.8; }
+        @keyframes shake { 0% { transform: rotate(1deg); } 50% { transform: rotate(-1deg); } }
 
         /* --- CANVAS --- */
         #canvasScreen { flex-direction: row; }
-        #sideBar { width: 70px; background: var(--sidebar); display: flex; flex-direction: column; align-items: center; padding: 15px 0; border-right: 1px solid var(--border); z-index: 100; transition: 0.3s; }
-        .toolbar-hidden #sideBar { margin-left: -70px; }
-
-        .t-btn { width: 44px; height: 44px; border-radius: 12px; border: none; background: transparent; color: var(--text); font-size: 1.1rem; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; }
-        .t-btn:active { background: rgba(255,255,255,0.1); }
+        #sideBar { width: 65px; background: var(--sidebar); display: flex; flex-direction: column; align-items: center; padding: 15px 0; border-right: 1px solid var(--border); }
+        .t-btn { width: 42px; height: 42px; border-radius: 10px; border: none; background: transparent; color: var(--text); font-size: 1.1rem; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; }
         
         .palette-popup {
-            position: fixed; left: 80px; bottom: 80px; background: var(--sidebar);
-            border: 1px solid var(--border); border-radius: 20px; padding: 15px;
-            display: none; grid-template-columns: repeat(4, 1fr); gap: 10px; z-index: 200;
+            position: fixed; left: 75px; bottom: 80px; background: var(--sidebar);
+            border: 1px solid var(--border); border-radius: 20px; padding: 12px;
+            display: none; grid-template-columns: repeat(4, 1fr); gap: 8px; z-index: 200;
         }
-        .color-dot { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); }
+        .color-dot { width: 30px; height: 30px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); }
 
-        #editor { flex: 1; padding: 20px 30px; font-size: 1.2rem; overflow-y: auto; line-height: 1.6; outline: none; }
-        #titleInput { width: 100%; border: none; background: transparent; color: var(--text); font-size: 2.2rem; font-weight: 800; padding: 40px 30px 10px; font-family: 'Playfair Display', serif; outline: none; }
-
-        .fab-tool { position: fixed; bottom: 25px; left: 15px; width: 50px; height: 50px; border-radius: 50%; background: var(--accent); color: white; border: none; z-index: 1000; font-size: 1.3rem; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        #editor { flex: 1; padding: 20px 25px; font-size: 1.2rem; overflow-y: auto; outline: none; line-height: 1.5; }
+        #titleInput { width: 100%; border: none; background: transparent; color: var(--text); font-size: 2.2rem; font-weight: 800; padding: 35px 25px 5px; outline: none; font-family: 'Playfair Display', serif; }
     </style>
 </head>
-<body class="toolbar-hidden">
+<body>
 
     <section id="homeScreen" class="screen active">
-        <div class="logo-main">Idea BookLand</div>
-        <p style="opacity:0.5; font-size:0.8rem; margin-top:-5px;">Premium Digital Workspace</p>
+        <h1 class="logo-main">Idea BookLand</h1>
+        <div class="user-sig">by Shaine Khant Paing</div>
 
         <div class="stats-row">
             <div class="stat-card">
-                <span style="font-size:0.7rem; opacity:0.6; text-transform:uppercase;">Total Ideas</span>
-                <span id="totalCount" class="stat-val">0</span>
+                <span style="font-size:0.65rem; opacity:0.5; text-transform:uppercase;">Total Ideas</span>
+                <span id="totalCount" class="stat-val" style="color:#F7CE15;">0</span>
             </div>
-            <div class="stat-card" onclick="openNote(null)">
-                <span style="font-size:0.7rem; opacity:0.6; text-transform:uppercase;">Today</span>
-                <span class="stat-val" style="color:var(--accent)">New</span>
+            <div class="stat-card">
+                <span style="font-size:0.65rem; opacity:0.5; text-transform:uppercase;">Today</span>
+                <span class="stat-val" style="color:#00BFC0">New</span>
             </div>
         </div>
 
-        <h3 style="margin-bottom:15px;">Recent Space</h3>
+        <button id="selBtn" class="select-btn" onclick="exitSelectMode()">✅ Done Deleting</button>
+
         <div class="note-grid" id="noteGrid">
             <div class="widget-new" onclick="openNote(null)">
-                <span style="font-size:2.5rem; margin-bottom:5px;">+</span>
+                <span style="font-size:2.5rem;">+</span>
                 <span>Create Idea</span>
             </div>
         </div>
     </section>
 
     <section id="canvasScreen" class="screen">
-        <button class="fab-tool" onclick="document.body.classList.toggle('toolbar-hidden')">⚒</button>
-        
         <aside id="sideBar">
             <button class="t-btn" onclick="closeNote()">🏠</button>
             <div style="height:1px; width:30px; background:var(--border); margin:10px 0;"></div>
-            
             <button class="t-btn" onclick="doc('bold')"><b>B</b></button>
             <button class="t-btn" onclick="doc('italic')"><i>I</i></button>
-            
             <div style="height:1px; width:30px; background:var(--border); margin:10px 0;"></div>
-            <button class="t-btn" onclick="doc('justifyLeft')" title="Align Left">|<≡</button>
-            <button class="t-btn" onclick="doc('justifyCenter')" title="Align Center">≡</button>
-            <button class="t-btn" onclick="doc('justifyRight')" title="Align Right">≡>|</button>
-            <button class="t-btn" onclick="doc('justifyFull')" title="Cancel/Justify" style="color:#FE0D6D;">✕</button>
-            
+            <button class="t-btn" onclick="doc('justifyLeft')">|<≡</button>
+            <button class="t-btn" onclick="doc('justifyCenter')">≡</button>
+            <button class="t-btn" onclick="doc('justifyRight')">≡>|</button>
             <div style="margin-top:auto;">
-                <button class="t-btn" onclick="pop('text')" style="color:var(--accent); font-weight:700;">A</button>
+                <button class="t-btn" onclick="pop()" style="color:var(--accent); font-weight:900; border: 1.5px solid var(--accent);">A</button>
             </div>
         </aside>
 
         <div id="palettePop" class="palette-popup"></div>
 
-        <div style="flex:1; display:flex; flex-direction:column;" id="canvasBg">
+        <div style="flex:1; display:flex; flex-direction:column;">
             <input type="text" id="titleInput" placeholder="Idea Name..." oninput="save()">
             <div id="editor" contenteditable="true" oninput="save()"></div>
         </div>
     </section>
 
     <script>
-        let db = JSON.parse(localStorage.getItem('BookLandFinal')) || [];
+        let db = JSON.parse(localStorage.getItem('BookLand_Final_V1')) || [];
         let activeId = null;
+        let isSelectMode = false;
         let lastRange = null;
+        let pressTimer;
 
         const colors = ["#EE7EA0", "#FE0D6D", "#00A1D8", "#00BFC0", "#91CA57", "#F7CE15", "#FD5E00", "#7851A5", "#363636", "#AAAAAA", "#FFFFFF"];
 
@@ -136,8 +132,10 @@
         }
 
         const editor = document.getElementById('editor');
-        editor.addEventListener('mouseup', () => { lastRange = window.getSelection().getRangeAt(0); });
-        editor.addEventListener('keyup', () => { lastRange = window.getSelection().getRangeAt(0); });
+        editor.onmouseup = editor.onkeyup = () => { 
+            const sel = window.getSelection();
+            if (sel.rangeCount > 0) lastRange = sel.getRangeAt(0);
+        };
 
         function applyColor(c) {
             if (lastRange) {
@@ -151,17 +149,45 @@
             save();
         }
 
+        function startPress() {
+            if (isSelectMode) return;
+            pressTimer = window.setTimeout(() => {
+                isSelectMode = true;
+                document.getElementById('selBtn').style.display = 'block';
+                renderHome();
+            }, 800);
+        }
+
+        function endPress() { clearTimeout(pressTimer); }
+
+        function exitSelectMode() {
+            isSelectMode = false;
+            document.getElementById('selBtn').style.display = 'none';
+            renderHome();
+        }
+
         function renderHome() {
             const grid = document.getElementById('noteGrid');
             const widget = grid.firstElementChild;
-            grid.innerHTML = '';
-            grid.appendChild(widget);
+            grid.innerHTML = ''; grid.appendChild(widget);
             
             db.forEach(n => {
                 const card = document.createElement('div');
-                card.style.cssText = "background:var(--sidebar); padding:20px; border-radius:28px; border:1px solid var(--border); aspect-ratio:1/1;";
-                card.innerHTML = `<h4 style="margin:0;">${n.title || 'Draft'}</h4><p style="font-size:0.7rem; opacity:0.5;">${n.date}</p>`;
-                card.onclick = () => openNote(n.id);
+                card.className = isSelectMode ? 'shaking' : '';
+                card.style.cssText = "background:var(--sidebar); padding:20px; border-radius:25px; border:1px solid var(--border); aspect-ratio:1/1; position:relative;";
+                card.innerHTML = `<h4 style="margin:0; font-size:1rem;">${n.title || 'Draft Idea'}</h4><p style="font-size:0.7rem; opacity:0.4; margin-top:8px;">${n.date}</p>`;
+                
+                card.ontouchstart = startPress;
+                card.ontouchend = endPress;
+                card.onmousedown = startPress;
+                card.onmouseup = endPress;
+
+                card.onclick = () => {
+                    if(isSelectMode) {
+                        db = db.filter(item => item.id !== n.id);
+                        save(); renderHome();
+                    } else { openNote(n.id); }
+                };
                 grid.appendChild(card);
             });
             document.getElementById('totalCount').innerText = db.length;
@@ -186,7 +212,7 @@
                 const target = document.getElementById(id);
                 target.style.display = 'flex';
                 setTimeout(() => target.classList.add('active'), 50);
-            }, 400);
+            }, 300);
         }
 
         function doc(cmd) { document.execCommand(cmd, false, null); editor.focus(); save(); }
@@ -197,8 +223,8 @@
             if(n) {
                 n.title = document.getElementById('titleInput').value;
                 n.content = document.getElementById('editor').innerHTML;
-                localStorage.setItem('BookLandFinal', JSON.stringify(db));
             }
+            localStorage.setItem('BookLand_Final_V1', JSON.stringify(db));
         }
         init();
     </script>
