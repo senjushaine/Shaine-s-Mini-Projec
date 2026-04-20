@@ -1,15 +1,18 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Idea BookLand</title>
+    <title>Idea BookLand Premium Pro</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Montserrat:wght@300;400;600;700&family=Playfair+Display:wght@700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Montserrat:wght@400;700&family=Playfair+Display:wght@700&family=Roboto:wght@400;700&family=Lora:ital,wght@0,400;1,700&family=Courier+Prime&family=Poppins:wght@400;600&display=swap');
 
         :root {
             --bg: #0f172a; --sidebar: #1e293b; --text: #f1f5f9;
             --border: rgba(255,255,255,0.1); --accent: #00BFC0;
+            --logo: linear-gradient(to right, #4facfe, #FE0D6D);
+            /* NEW: Premium Gradient for the Floating Button */
+            --premium-btn: linear-gradient(135deg, #FE0D6D, #00A1D8); 
         }
 
         .light-mode {
@@ -20,71 +23,69 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html { margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; transition: 0.3s ease; }
 
-        .screen { position: fixed; inset: 0; display: none; opacity: 0; transition: 0.3s ease; }
+        .screen { position: fixed; inset: 0; display: none; opacity: 0; transition: 0.3s ease; z-index: 10; }
         .screen.active { display: flex; opacity: 1; }
 
         /* --- DASHBOARD --- */
-        #homeScreen { flex-direction: column; padding: 40px 25px; overflow-y: auto; }
-        .header-row { display: flex; justify-content: space-between; align-items: flex-start; }
-        .logo-main { font-family: 'Pacifico', cursive; font-size: 2.2rem; color: #FE0D6D; margin: 0; }
-        .user-sig { font-size: 0.85rem; opacity: 0.6; margin-top: -5px; margin-bottom: 25px; }
-        
-        .mode-toggle { font-size: 1.5rem; cursor: pointer; filter: grayscale(1); }
+        #homeScreen { flex-direction: column; padding: 30px 20px; overflow-y: auto; }
+        .header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        .logo-main { font-family: 'Pacifico', cursive; font-size: 2.4rem; background: var(--logo); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; }
+        .subtitle { font-size: 0.8rem; opacity: 0.5; margin-top: -5px; }
+        .theme-btn { font-size: 1.5rem; cursor: pointer; filter: grayscale(1); }
 
-        .stats-row { display: flex; gap: 12px; margin-bottom: 30px; }
-        .stat-card { flex: 1; background: var(--sidebar); padding: 18px; border-radius: 22px; border: 1px solid var(--border); }
-        .stat-val { font-size: 1.6rem; font-weight: 700; display: block; }
+        .stats-container { display: flex; gap: 15px; margin-bottom: 30px; }
+        .stat-box { flex: 1; background: var(--sidebar); padding: 15px; border-radius: 20px; border: 1px solid var(--border); }
+        .stat-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; display: block; margin-bottom: 5px; }
+        .stat-num { font-size: 1.5rem; font-weight: 700; color: #F7CE15; }
+
+        .section-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 15px; }
         
-        .note-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .note-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding-bottom: 40px; }
         
         /* Premium Gradients */
-        .card-grad-1 { background: linear-gradient(135deg, #00C9FF, #92FE9D); }
-        .card-grad-2 { background: linear-gradient(135deg, #f093fb, #f5576c); }
-        .card-grad-3 { background: linear-gradient(135deg, #fa709a, #fee140); }
-        .card-grad-4 { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .grad-create { background: linear-gradient(135deg, #FE0D6D, #00A1D8); color: white; }
+        .grad-note { background: var(--sidebar); border: 1px solid var(--border); }
 
-        .widget-new { 
-            background: linear-gradient(135deg, #FE0D6D, #00A1D8); 
-            aspect-ratio: 1/1; border-radius: 25px; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; color: white; font-weight: 700;
-        }
-
-        .select-btn { 
-            display: none; background: rgba(255,255,255,0.1); border: 1px solid var(--border); color: white; 
-            padding: 12px; border-radius: 15px; margin-bottom: 15px; width: 100%; font-weight: 600;
-        }
-
-        .shaking { animation: shake 0.3s infinite; border: 2px solid #FE0D6D !important; }
-        @keyframes shake { 0% { transform: rotate(1deg); } 50% { transform: rotate(-1deg); } }
+        .card { aspect-ratio: 1/1; border-radius: 25px; display: flex; flex-direction: column; padding: 20px; position: relative; overflow: hidden; }
+        .card h4 { margin: 0; font-size: 1.1rem; }
+        .card span.date { font-size: 0.7rem; opacity: 0.4; margin-top: 8px; }
 
         /* --- CANVAS --- */
         #canvasScreen { flex-direction: row; }
         
-        /* Hide/Seek Sidebar */
         #sideBar { 
             width: 65px; background: var(--sidebar); display: flex; flex-direction: column; 
-            align-items: center; padding: 15px 0; border-right: 1px solid var(--border);
-            transition: transform 0.3s ease;
+            align-items: center; padding: 15px 0 120px; border-right: 1px solid var(--border); 
+            transition: 0.3s ease; position: relative; z-index: 20;
+            overflow-y: auto; scrollbar-width: none;
         }
+        #sideBar::-webkit-scrollbar { display: none; }
         #sideBar.hidden { transform: translateX(-65px); width: 0; padding: 0; border: none; overflow: hidden; }
 
-        .t-btn { width: 42px; height: 42px; border-radius: 10px; border: none; background: transparent; color: var(--text); font-size: 1.1rem; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; }
+        .t-btn { width: 42px; min-height: 42px; border-radius: 10px; border: none; background: transparent; color: var(--text); font-size: 1.1rem; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; outline: none;}
         
-        .palette-popup {
-            position: fixed; left: 75px; bottom: 100px; background: var(--sidebar);
-            border: 1px solid var(--border); border-radius: 20px; padding: 12px;
-            display: none; grid-template-columns: repeat(4, 1fr); gap: 8px; z-index: 200;
-        }
+        /* Popups */
+        .palette-popup { position: fixed; left: 75px; bottom: 100px; background: var(--sidebar); border: 1px solid var(--border); border-radius: 20px; padding: 12px; display: none; grid-template-columns: repeat(4, 1fr); gap: 8px; z-index: 100; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
         .color-dot { width: 30px; height: 30px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); }
 
-        /* Wrap fix */
-        #editor { 
-            flex: 1; padding: 20px 25px; font-size: 1.2rem; overflow-y: auto; outline: none; 
-            line-height: 1.5; word-wrap: break-word; overflow-x: hidden; width: 100%;
-        }
+        .font-popup { position: fixed; left: 75px; top: 100px; background: var(--sidebar); border: 1px solid var(--border); border-radius: 15px; padding: 10px; display: none; flex-direction: column; gap: 5px; z-index: 100; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        .font-option { padding: 8px 15px; cursor: pointer; border-radius: 8px; font-size: 0.9rem; white-space: nowrap; }
+        .font-option:hover { background: var(--accent); color: white; }
+
+        /* FIXED: Text Overflow and Wrapping */
+        #editor { flex: 1; padding: 20px 25px; font-size: 1.1rem; overflow-y: auto; outline: none; line-height: 1.6; overflow-wrap: anywhere; word-break: break-word; white-space: pre-wrap; }
         #titleInput { width: 100%; border: none; background: transparent; color: var(--text); font-size: 2.2rem; font-weight: 800; padding: 35px 25px 5px; outline: none; font-family: 'Playfair Display', serif; }
 
-        .tool-toggle { position: fixed; left: 12px; bottom: 20px; background: #00BFC0; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; border: none; z-index: 300; }
+        /* UPDATED: Premium Gradient Hammer Button */
+        .tool-toggle { 
+            position: fixed; left: 12px; bottom: 20px; 
+            background: var(--premium-btn); 
+            width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; border: none; z-index: 150; 
+            box-shadow: 0 4px 15px rgba(254, 13, 109, 0.3);
+        }
+        
+        h1.editor-h { font-size: 2em; margin: 0.5em 0; }
+        h2.editor-h { font-size: 1.5em; margin: 0.5em 0; }
     </style>
 </head>
 <body>
@@ -93,28 +94,29 @@
         <div class="header-row">
             <div>
                 <h1 class="logo-main">Idea BookLand</h1>
-                <div class="user-sig">by Shaine Khant Paing</div>
+                <div class="subtitle">Premium Digital Workspace</div>
+                <div style="font-size: 0.7rem; opacity: 0.4; margin-top: 5px;">by Shaine Khant Paing</div>
             </div>
-            <div class="mode-toggle" id="themeBtn" onclick="toggleTheme()">🌓</div>
+            <div class="theme-btn" onclick="toggleTheme()" id="tIcon">🌞</div>
         </div>
 
-        <div class="stats-row">
-            <div class="stat-card">
-                <span style="font-size:0.65rem; opacity:0.5; text-transform:uppercase;">Total Ideas</span>
-                <span id="totalCount" class="stat-val" style="color:#F7CE15;">0</span>
+        <div class="stats-container">
+            <div class="stat-box">
+                <span class="stat-label">Total Ideas</span>
+                <span id="totalCount" class="stat-num">0</span>
             </div>
-            <div class="stat-card">
-                <span style="font-size:0.65rem; opacity:0.5; text-transform:uppercase;">Today</span>
-                <span class="stat-val" style="color:#00BFC0">New</span>
+            <div class="stat-box">
+                <span class="stat-label">Today</span>
+                <span class="stat-num" style="color:#00BFC0;">New</span>
             </div>
         </div>
 
-        <button id="selBtn" class="select-btn" onclick="exitSelectMode()">✅ Done Deleting</button>
+        <h2 class="section-title">Recent Space</h2>
 
         <div class="note-grid" id="noteGrid">
-            <div class="widget-new" onclick="openNote(null)">
-                <span style="font-size:2.5rem;">+</span>
-                <span>Create Idea</span>
+            <div class="card grad-create" onclick="openNote(null)">
+                <div style="flex:1; display:flex; align-items:center; justify-content:center; font-size:2.5rem; font-weight:300;">+</div>
+                <div style="font-weight:600; text-align:center;">Create Idea</div>
             </div>
         </div>
     </section>
@@ -122,114 +124,141 @@
     <section id="canvasScreen" class="screen">
         <aside id="sideBar">
             <button class="t-btn" onclick="closeNote()">🏠</button>
-            <div style="height:1px; width:30px; background:var(--border); margin:10px 0;"></div>
+            <div style="height:1px; width:30px; background:var(--border); margin:5px 0;"></div>
+            
+            <button class="t-btn" onclick="toggleFontPopup()">fF</button>
+            <button class="t-btn" onclick="cycleHeading()" id="headBtn" style="font-weight:bold">H</button>
+            
+            <div style="height:1px; width:30px; background:var(--border); margin:5px 0;"></div>
             <button class="t-btn" onclick="doc('bold')"><b>B</b></button>
             <button class="t-btn" onclick="doc('italic')"><i>I</i></button>
-            <div style="height:1px; width:30px; background:var(--border); margin:10px 0;"></div>
+            <button class="t-btn" onclick="doc('underline')">U</button>
+            
+            <div style="height:1px; width:30px; background:var(--border); margin:5px 0;"></div>
+            <button class="t-btn" onclick="doc('insertUnorderedList')">•≡</button>
+            <button class="t-btn" onclick="doc('insertOrderedList')">1≡</button>
+            
+            <div style="height:1px; width:30px; background:var(--border); margin:5px 0;"></div>
             <button class="t-btn" onclick="doc('justifyLeft')">|<≡</button>
             <button class="t-btn" onclick="doc('justifyCenter')">≡</button>
             <button class="t-btn" onclick="doc('justifyRight')">≡>|</button>
-            <div style="margin-top:auto; padding-bottom: 60px;">
-                <button class="t-btn" onclick="pop()" style="color:var(--accent); font-weight:900; border: 1.5px solid var(--accent);">A</button>
+            
+            <div style="height:1px; width:30px; background:var(--border); margin:5px 0;"></div>
+            <button class="t-btn" onclick="exportTxt()">📄</button>
+            <button class="t-btn" onclick="window.print()">📑</button>
+            
+            <div style="margin-top:auto;">
+                <button class="t-btn" onclick="openPalette('text')" style="color:var(--accent); font-weight:bold; border:1.5px solid var(--accent)">A</button>
+                <button class="t-btn" onclick="openPalette('title')" style="font-size:0.8rem; border:1.5px solid #FE0D6D">Title</button>
+                <button class="t-btn" onclick="openPalette('bg')">🎨</button>
             </div>
         </aside>
 
         <button class="tool-toggle" onclick="toggleSidebar()">⚒️</button>
-
+        
         <div id="palettePop" class="palette-popup"></div>
+        <div id="fontPop" class="font-popup"></div>
 
-        <div style="flex:1; display:flex; flex-direction:column; min-width: 0;">
+        <div id="mainCanvas" style="flex:1; display:flex; flex-direction:column; min-width: 0;">
             <input type="text" id="titleInput" placeholder="Idea Name..." oninput="save()">
             <div id="editor" contenteditable="true" oninput="save()"></div>
         </div>
     </section>
 
     <script>
-        let db = JSON.parse(localStorage.getItem('BookLand_Master')) || [];
+        let db = JSON.parse(localStorage.getItem('IdeaBookLand_Master_v1')) || [];
         let activeId = null;
-        let isSelectMode = false;
-        let pressTimer;
-        let lastRange = null;
+        let savedRange = null;
+        let paletteTarget = 'text';
+        let headingLevel = 0; // 0=P, 1=H1, 2=H2
 
-        const grads = ['card-grad-1', 'card-grad-2', 'card-grad-3', 'card-grad-4'];
-        const colors = ["#EE7EA0", "#FE0D6D", "#00A1D8", "#00BFC0", "#91CA57", "#F7CE15", "#FD5E00", "#7851A5", "#363636", "#AAAAAA", "#FFFFFF"];
+        const colors = ["#EE7EA0", "#FE0D6D", "#00A1D8", "#00BFC0", "#91CA57", "#F7CE15", "#FD5E00", "#7851A5", "#FFFFFF", "#1e293b", "#0f172a", "#000000"];
+        const fonts = ['Montserrat', 'Playfair Display', 'Roboto', 'Lora', 'Courier Prime', 'Poppins'];
 
         function init() {
             const container = document.getElementById('palettePop');
             colors.forEach(c => {
                 const d = document.createElement('div');
-                d.className = 'color-dot';
-                d.style.backgroundColor = c;
-                d.onmousedown = (e) => { e.preventDefault(); applyColor(c); };
+                d.className = 'color-dot'; d.style.backgroundColor = c;
+                d.onmousedown = (e) => { e.preventDefault(); applyStyle(c); };
                 container.appendChild(d);
+            });
+
+            const fontPop = document.getElementById('fontPop');
+            fonts.forEach(f => {
+                const o = document.createElement('div');
+                o.className = 'font-option'; o.innerText = f; o.style.fontFamily = f;
+                o.onclick = () => { applyFont(f); };
+                fontPop.appendChild(o);
             });
             renderHome();
         }
 
+        // Theme and Sidebar
         function toggleTheme() {
             document.body.classList.toggle('light-mode');
-            const isLight = document.body.classList.contains('light-mode');
-            document.getElementById('themeBtn').innerText = isLight ? "🌞" : "🌓";
+            document.getElementById('tIcon').innerText = document.body.classList.contains('light-mode') ? "🌚" : "🌞";
+        }
+        function toggleSidebar() { document.getElementById('sideBar').classList.toggle('hidden'); }
+
+        // Color Palettes
+        function openPalette(type) {
+            paletteTarget = type;
+            const p = document.getElementById('palettePop');
+            p.style.display = p.style.display === 'grid' ? 'none' : 'grid';
+            document.getElementById('fontPop').style.display = 'none';
         }
 
-        function toggleSidebar() {
-            document.getElementById('sideBar').classList.toggle('hidden');
-        }
-
-        const editor = document.getElementById('editor');
-        editor.onmouseup = editor.onkeyup = () => { 
-            const sel = window.getSelection();
-            if (sel.rangeCount > 0) lastRange = sel.getRangeAt(0);
-        };
-
-        function applyColor(c) {
-            if (lastRange) {
-                const sel = window.getSelection();
-                sel.removeAllRanges();
-                sel.addRange(lastRange);
+        function applyStyle(val) {
+            if (paletteTarget === 'text') {
+                if (savedRange) { const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(savedRange); }
+                document.execCommand('foreColor', false, val);
             }
-            document.execCommand('foreColor', false, c);
-            editor.focus();
-            document.getElementById('palettePop').style.display = 'none';
+            if (paletteTarget === 'title') document.getElementById('titleInput').style.color = val;
+            if (paletteTarget === 'bg') document.getElementById('mainCanvas').style.backgroundColor = val;
             save();
         }
 
-        function startPress() {
-            if (isSelectMode) return;
-            pressTimer = window.setTimeout(() => {
-                isSelectMode = true;
-                document.getElementById('selBtn').style.display = 'block';
-                renderHome();
-            }, 800);
+        // Fonts
+        function toggleFontPopup() {
+            const p = document.getElementById('fontPop');
+            p.style.display = p.style.display === 'flex' ? 'none' : 'flex';
+            document.getElementById('palettePop').style.display = 'none';
         }
-        function endPress() { clearTimeout(pressTimer); }
-        function exitSelectMode() {
-            isSelectMode = false;
-            document.getElementById('selBtn').style.display = 'none';
-            renderHome();
+
+        function applyFont(font) {
+            document.getElementById('editor').style.fontFamily = font;
+            toggleFontPopup();
+            save();
         }
+
+        // Headings
+        function cycleHeading() {
+            headingLevel = (headingLevel + 1) % 3;
+            const tags = ['p', 'h1', 'h2'];
+            document.execCommand('formatBlock', false, tags[headingLevel]);
+            const btn = document.getElementById('headBtn');
+            btn.innerText = headingLevel === 0 ? 'H' : 'H' + headingLevel;
+        }
+
+        // Editor & Core Logic
+        const editor = document.getElementById('editor');
+        editor.onmouseup = editor.onkeyup = () => { 
+            const sel = window.getSelection();
+            if (sel.rangeCount > 0) savedRange = sel.getRangeAt(0);
+        };
+
+        function doc(cmd) { document.execCommand(cmd, false, null); editor.focus(); save(); }
 
         function renderHome() {
             const grid = document.getElementById('noteGrid');
             const widget = grid.firstElementChild;
             grid.innerHTML = ''; grid.appendChild(widget);
-            
-            db.forEach((n, idx) => {
+            db.forEach(n => {
                 const card = document.createElement('div');
-                const gradClass = grads[idx % grads.length];
-                card.className = isSelectMode ? 'shaking' : gradClass;
-                card.style.cssText = `padding:20px; border-radius:25px; border:1px solid var(--border); aspect-ratio:1/1; color:white;`;
-                card.innerHTML = `<h4 style="margin:0; font-size:1.1rem;">${n.title || 'Draft Idea'}</h4><p style="font-size:0.7rem; opacity:0.8; margin-top:8px;">${n.date}</p>`;
-                
-                card.ontouchstart = startPress; card.ontouchend = endPress;
-                card.onmousedown = startPress; card.onmouseup = endPress;
-
-                card.onclick = () => {
-                    if(isSelectMode) {
-                        db = db.filter(item => item.id !== n.id);
-                        save(); renderHome();
-                    } else { openNote(n.id); }
-                };
+                card.className = 'card grad-note';
+                card.innerHTML = `<h4>${n.title || 'Draft Idea'}</h4><span class="date">${n.date}</span>`;
+                card.onclick = () => openNote(n.id);
                 grid.appendChild(card);
             });
             document.getElementById('totalCount').innerText = db.length;
@@ -237,16 +266,24 @@
 
         function openNote(id) {
             if(!id) {
-                const n = { id: Date.now(), title: "", content: "", date: new Date().toLocaleDateString() };
+                const n = { 
+                    id: Date.now(), title: "", content: "", 
+                    date: new Date().toLocaleDateString(), 
+                    bgCol: '', titleCol: '', font: 'Montserrat' 
+                };
                 db.unshift(n); activeId = n.id;
-            } else { activeId = id; }
+            } else activeId = id;
             const note = db.find(n => n.id === activeId);
             document.getElementById('titleInput').value = note.title;
+            document.getElementById('titleInput').style.color = note.titleCol || '';
             document.getElementById('editor').innerHTML = note.content;
+            document.getElementById('editor').style.fontFamily = note.font || 'Montserrat';
+            document.getElementById('mainCanvas').style.backgroundColor = note.bgCol || '';
             switchScreen('canvasScreen');
         }
 
         function closeNote() { switchScreen('homeScreen'); renderHome(); }
+
         function switchScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             setTimeout(() => {
@@ -257,18 +294,26 @@
             }, 300);
         }
 
-        function doc(cmd) { document.execCommand(cmd, false, null); editor.focus(); save(); }
-        function pop() { const p = document.getElementById('palettePop'); p.style.display = p.style.display === 'grid' ? 'none' : 'grid'; }
-        
         function save() {
             const n = db.find(n => n.id === activeId);
             if(n) {
                 n.title = document.getElementById('titleInput').value;
-                n.content = document.getElementById('editor').innerHTML;
+                n.content = editor.innerHTML;
+                n.bgCol = document.getElementById('mainCanvas').style.backgroundColor;
+                n.titleCol = document.getElementById('titleInput').style.color;
+                n.font = document.getElementById('editor').style.fontFamily;
             }
-            localStorage.setItem('BookLand_Master', JSON.stringify(db));
+            localStorage.setItem('IdeaBookLand_Master_v1', JSON.stringify(db));
         }
+
+        function exportTxt() {
+            const t = document.getElementById('titleInput').value || 'Idea';
+            const b = new Blob([editor.innerText], {type:'text/plain'});
+            const a = document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`${t}.txt`; a.click();
+        }
+
         init();
     </script>
 </body>
-</html>
+                </html>
+                
