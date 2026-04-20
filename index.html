@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -11,7 +11,6 @@
             --bg: #0f172a; --sidebar: #1e293b; --text: #f1f5f9;
             --border: rgba(255,255,255,0.1); --accent: #00BFC0;
             --logo: linear-gradient(to right, #4facfe, #FE0D6D);
-            /* NEW: Premium Gradient for the Floating Button */
             --premium-btn: linear-gradient(135deg, #FE0D6D, #00A1D8); 
         }
 
@@ -29,7 +28,19 @@
         /* --- DASHBOARD --- */
         #homeScreen { flex-direction: column; padding: 30px 20px; overflow-y: auto; }
         .header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-        .logo-main { font-family: 'Pacifico', cursive; font-size: 2.4rem; background: var(--logo); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; }
+        
+        /* FIXED: Added padding and inline-block to prevent cursive letter clipping */
+        .logo-main { 
+            font-family: 'Pacifico', cursive; 
+            font-size: 2.4rem; 
+            background: var(--logo); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            margin: 0; 
+            padding-right: 10px; 
+            display: inline-block; 
+        }
+        
         .subtitle { font-size: 0.8rem; opacity: 0.5; margin-top: -5px; }
         .theme-btn { font-size: 1.5rem; cursor: pointer; filter: grayscale(1); }
 
@@ -42,13 +53,11 @@
         
         .note-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding-bottom: 40px; }
         
-        /* Premium Gradients */
-        .grad-create { background: linear-gradient(135deg, #FE0D6D, #00A1D8); color: white; }
-        .grad-note { background: var(--sidebar); border: 1px solid var(--border); }
+        .grad-create { background: var(--premium-btn); color: white; border: none; }
 
-        .card { aspect-ratio: 1/1; border-radius: 25px; display: flex; flex-direction: column; padding: 20px; position: relative; overflow: hidden; }
+        .card { aspect-ratio: 1/1; border-radius: 25px; display: flex; flex-direction: column; padding: 20px; position: relative; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .card h4 { margin: 0; font-size: 1.1rem; }
-        .card span.date { font-size: 0.7rem; opacity: 0.4; margin-top: 8px; }
+        .card span.date { font-size: 0.7rem; margin-top: 8px; }
 
         /* --- CANVAS --- */
         #canvasScreen { flex-direction: row; }
@@ -64,7 +73,6 @@
 
         .t-btn { width: 42px; min-height: 42px; border-radius: 10px; border: none; background: transparent; color: var(--text); font-size: 1.1rem; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; outline: none;}
         
-        /* Popups */
         .palette-popup { position: fixed; left: 75px; bottom: 100px; background: var(--sidebar); border: 1px solid var(--border); border-radius: 20px; padding: 12px; display: none; grid-template-columns: repeat(4, 1fr); gap: 8px; z-index: 100; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
         .color-dot { width: 30px; height: 30px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); }
 
@@ -72,11 +80,9 @@
         .font-option { padding: 8px 15px; cursor: pointer; border-radius: 8px; font-size: 0.9rem; white-space: nowrap; }
         .font-option:hover { background: var(--accent); color: white; }
 
-        /* FIXED: Text Overflow and Wrapping */
         #editor { flex: 1; padding: 20px 25px; font-size: 1.1rem; overflow-y: auto; outline: none; line-height: 1.6; overflow-wrap: anywhere; word-break: break-word; white-space: pre-wrap; }
         #titleInput { width: 100%; border: none; background: transparent; color: var(--text); font-size: 2.2rem; font-weight: 800; padding: 35px 25px 5px; outline: none; font-family: 'Playfair Display', serif; }
 
-        /* UPDATED: Premium Gradient Hammer Button */
         .tool-toggle { 
             position: fixed; left: 12px; bottom: 20px; 
             background: var(--premium-btn); 
@@ -170,10 +176,19 @@
         let activeId = null;
         let savedRange = null;
         let paletteTarget = 'text';
-        let headingLevel = 0; // 0=P, 1=H1, 2=H2
+        let headingLevel = 0; 
 
         const colors = ["#EE7EA0", "#FE0D6D", "#00A1D8", "#00BFC0", "#91CA57", "#F7CE15", "#FD5E00", "#7851A5", "#FFFFFF", "#1e293b", "#0f172a", "#000000"];
         const fonts = ['Montserrat', 'Playfair Display', 'Roboto', 'Lora', 'Courier Prime', 'Poppins'];
+        
+        // NEW: Dynamic color array for the dashboard cards
+        const cardGradients = [
+            "linear-gradient(135deg, #00BFC0, #00A1D8)",
+            "linear-gradient(135deg, #7851A5, #FE0D6D)",
+            "linear-gradient(135deg, #FD5E00, #F7CE15)",
+            "linear-gradient(135deg, #91CA57, #00BFC0)",
+            "linear-gradient(135deg, #4facfe, #00f2fe)"
+        ];
 
         function init() {
             const container = document.getElementById('palettePop');
@@ -194,14 +209,12 @@
             renderHome();
         }
 
-        // Theme and Sidebar
         function toggleTheme() {
             document.body.classList.toggle('light-mode');
             document.getElementById('tIcon').innerText = document.body.classList.contains('light-mode') ? "🌚" : "🌞";
         }
         function toggleSidebar() { document.getElementById('sideBar').classList.toggle('hidden'); }
 
-        // Color Palettes
         function openPalette(type) {
             paletteTarget = type;
             const p = document.getElementById('palettePop');
@@ -219,7 +232,6 @@
             save();
         }
 
-        // Fonts
         function toggleFontPopup() {
             const p = document.getElementById('fontPop');
             p.style.display = p.style.display === 'flex' ? 'none' : 'flex';
@@ -232,7 +244,6 @@
             save();
         }
 
-        // Headings
         function cycleHeading() {
             headingLevel = (headingLevel + 1) % 3;
             const tags = ['p', 'h1', 'h2'];
@@ -241,7 +252,6 @@
             btn.innerText = headingLevel === 0 ? 'H' : 'H' + headingLevel;
         }
 
-        // Editor & Core Logic
         const editor = document.getElementById('editor');
         editor.onmouseup = editor.onkeyup = () => { 
             const sel = window.getSelection();
@@ -250,14 +260,22 @@
 
         function doc(cmd) { document.execCommand(cmd, false, null); editor.focus(); save(); }
 
+        // UPDATED: Dynamically injects colors to the saved idea cards
         function renderHome() {
             const grid = document.getElementById('noteGrid');
             const widget = grid.firstElementChild;
             grid.innerHTML = ''; grid.appendChild(widget);
-            db.forEach(n => {
+            
+            db.forEach((n, index) => {
                 const card = document.createElement('div');
-                card.className = 'card grad-note';
-                card.innerHTML = `<h4>${n.title || 'Draft Idea'}</h4><span class="date">${n.date}</span>`;
+                card.className = 'card';
+                // Cycle through the gradient array based on the index
+                const bgGrad = cardGradients[index % cardGradients.length];
+                card.style.background = bgGrad;
+                card.style.color = "white";
+                card.style.border = "none";
+                
+                card.innerHTML = `<h4 style="color: white;">${n.title || 'Draft Idea'}</h4><span class="date" style="color: rgba(255,255,255,0.8);">${n.date}</span>`;
                 card.onclick = () => openNote(n.id);
                 grid.appendChild(card);
             });
@@ -315,5 +333,4 @@
         init();
     </script>
 </body>
-                </html>
-                
+</html>
