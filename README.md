@@ -1,2 +1,2 @@
 # Shaine-s-Mini-Projec
-Write down your ideaqq
+Write down your ideas
