@@ -27,9 +27,8 @@
 
         /* --- DASHBOARD --- */
         #homeScreen { flex-direction: column; padding: 30px 20px; overflow-y: auto; }
-        .header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        .header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; position: relative;}
         
-        /* FIXED: Added padding and inline-block to prevent cursive letter clipping */
         .logo-main { 
             font-family: 'Pacifico', cursive; 
             font-size: 2.4rem; 
@@ -42,7 +41,18 @@
         }
         
         .subtitle { font-size: 0.8rem; opacity: 0.5; margin-top: -5px; }
+        
+        .top-actions { display: flex; align-items: center; gap: 15px; }
         .theme-btn { font-size: 1.5rem; cursor: pointer; filter: grayscale(1); }
+        
+        /* DONE BUTTON FOR DELETE MODE */
+        #doneDeleteBtn {
+            display: none;
+            background: var(--premium-btn);
+            color: white; border: none; padding: 8px 15px;
+            border-radius: 20px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
 
         .stats-container { display: flex; gap: 15px; margin-bottom: 30px; }
         .stat-box { flex: 1; background: var(--sidebar); padding: 15px; border-radius: 20px; border: 1px solid var(--border); }
@@ -55,9 +65,36 @@
         
         .grad-create { background: var(--premium-btn); color: white; border: none; }
 
-        .card { aspect-ratio: 1/1; border-radius: 25px; display: flex; flex-direction: column; padding: 20px; position: relative; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .card h4 { margin: 0; font-size: 1.1rem; }
-        .card span.date { font-size: 0.7rem; margin-top: 8px; }
+        .card { aspect-ratio: 1/1; border-radius: 25px; display: flex; flex-direction: column; padding: 20px; position: relative; border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.1); user-select: none; -webkit-user-select: none; }
+        .card h4 { margin: 0; font-size: 1.1rem; pointer-events: none;}
+        .card span.date { font-size: 0.7rem; margin-top: 8px; pointer-events: none;}
+
+        /* --- SHAKING ANIMATION & DELETE MODE --- */
+        @keyframes shake {
+            0% { transform: rotate(-1.5deg); }
+            50% { transform: rotate(1.5deg); }
+            100% { transform: rotate(-1.5deg); }
+        }
+        
+        .delete-mode .card.idea-card {
+            animation: shake 0.3s infinite;
+        }
+
+        .card-delete-btn {
+            position: absolute;
+            top: 5px; right: 5px;
+            background: rgba(254, 13, 109, 0.9); 
+            color: white; border: none; border-radius: 50%;
+            width: 28px; height: 28px;
+            font-size: 14px; font-weight: bold;
+            display: none; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 5;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        
+        .delete-mode .card-delete-btn {
+            display: flex;
+        }
 
         /* --- CANVAS --- */
         #canvasScreen { flex-direction: row; }
@@ -71,7 +108,7 @@
         #sideBar::-webkit-scrollbar { display: none; }
         #sideBar.hidden { transform: translateX(-65px); width: 0; padding: 0; border: none; overflow: hidden; }
 
-        .t-btn { width: 42px; min-height: 42px; border-radius: 10px; border: none; background: transparent; color: var(--text); font-size: 1.1rem; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; outline: none;}
+        .t-btn { width: 42px; min-height: 42px; border-radius: 10px; border: none; background: transparent; color: var(--text); font-size: 1.1rem; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; outline: none; cursor: pointer;}
         
         .palette-popup { position: fixed; left: 75px; bottom: 100px; background: var(--sidebar); border: 1px solid var(--border); border-radius: 20px; padding: 12px; display: none; grid-template-columns: repeat(4, 1fr); gap: 8px; z-index: 100; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
         .color-dot { width: 30px; height: 30px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); }
@@ -88,10 +125,8 @@
             background: var(--premium-btn); 
             width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; border: none; z-index: 150; 
             box-shadow: 0 4px 15px rgba(254, 13, 109, 0.3);
+            cursor: pointer;
         }
-        
-        h1.editor-h { font-size: 2em; margin: 0.5em 0; }
-        h2.editor-h { font-size: 1.5em; margin: 0.5em 0; }
     </style>
 </head>
 <body>
@@ -101,9 +136,11 @@
             <div>
                 <h1 class="logo-main">Idea BookLand</h1>
                 <div class="subtitle">Premium Digital Workspace</div>
-                <div style="font-size: 0.7rem; opacity: 0.4; margin-top: 5px;">by Shaine Khant Paing</div>
             </div>
-            <div class="theme-btn" onclick="toggleTheme()" id="tIcon">🌞</div>
+            <div class="top-actions">
+                <button id="doneDeleteBtn" onclick="deactivateDeleteMode()">Done</button>
+                <div class="theme-btn" onclick="toggleTheme()" id="tIcon">🌞</div>
+            </div>
         </div>
 
         <div class="stats-container">
@@ -120,7 +157,7 @@
         <h2 class="section-title">Recent Space</h2>
 
         <div class="note-grid" id="noteGrid">
-            <div class="card grad-create" onclick="openNote(null)">
+            <div class="card grad-create" onclick="if(!isDeleteMode) openNote(null)">
                 <div style="flex:1; display:flex; align-items:center; justify-content:center; font-size:2.5rem; font-weight:300;">+</div>
                 <div style="font-weight:600; text-align:center;">Create Idea</div>
             </div>
@@ -147,11 +184,13 @@
             <div style="height:1px; width:30px; background:var(--border); margin:5px 0;"></div>
             <button class="t-btn" onclick="doc('justifyLeft')">|<≡</button>
             <button class="t-btn" onclick="doc('justifyCenter')">≡</button>
-            <button class="t-btn" onclick="doc('justifyRight')">≡>|</button>
+            <button class="t-btn" onclick="doc('justifyRight')">≡|</button>
             
             <div style="height:1px; width:30px; background:var(--border); margin:5px 0;"></div>
             <button class="t-btn" onclick="exportTxt()">📄</button>
-            <button class="t-btn" onclick="window.print()">📑</button>
+            
+            <div style="height:1px; width:30px; background:var(--border); margin:5px 0;"></div>
+            <button class="t-btn" onclick="deleteCurrentNote()" style="color: #FE0D6D;" title="Delete Idea">🗑️</button>
             
             <div style="margin-top:auto;">
                 <button class="t-btn" onclick="openPalette('text')" style="color:var(--accent); font-weight:bold; border:1.5px solid var(--accent)">A</button>
@@ -160,7 +199,7 @@
             </div>
         </aside>
 
-        <button class="tool-toggle" onclick="toggleSidebar()">⚒️</button>
+        <button class="tool-toggle" onclick="toggleSidebar()">✒️</button>
         
         <div id="palettePop" class="palette-popup"></div>
         <div id="fontPop" class="font-popup"></div>
@@ -172,16 +211,68 @@
     </section>
 
     <script>
-        let db = JSON.parse(localStorage.getItem('IdeaBookLand_Master_v1')) || [];
-        let activeId = null;
-        let savedRange = null;
-        let paletteTarget = 'text';
-        let headingLevel = 0; 
+        // ========================================
+        // IndexedDB Setup 
+        // ========================================
+        const DB_NAME = 'IdeaBookLand';
+        const DB_VERSION = 1;
+        const STORE_NAME = 'notes';
+        let db = null;
 
-        const colors = ["#EE7EA0", "#FE0D6D", "#00A1D8", "#00BFC0", "#91CA57", "#F7CE15", "#FD5E00", "#7851A5", "#FFFFFF", "#1e293b", "#0f172a", "#000000"];
-        const fonts = ['Montserrat', 'Playfair Display', 'Roboto', 'Lora', 'Courier Prime', 'Poppins'];
-        
-        // NEW: Dynamic color array for the dashboard cards
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => { db = request.result; resolve(db); };
+                request.onupgradeneeded = (event) => {
+                    const database = event.target.result;
+                    if (!database.objectStoreNames.contains(STORE_NAME)) {
+                        database.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                    }
+                };
+            });
+        }
+
+        function getAllNotes() {
+            return new Promise((resolve, reject) => {
+                if (!db) return resolve([]);
+                const request = db.transaction([STORE_NAME], 'readonly').objectStore(STORE_NAME).getAll();
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        function getNoteById(id) {
+            return new Promise((resolve, reject) => {
+                if (!db) return reject('No DB');
+                const request = db.transaction([STORE_NAME], 'readonly').objectStore(STORE_NAME).get(id);
+                request.onsuccess = () => resolve(request.result);
+            });
+        }
+
+        function saveNoteToDB(note) {
+            return new Promise((resolve, reject) => {
+                if (!db) return reject('No DB');
+                const request = db.transaction([STORE_NAME], 'readwrite').objectStore(STORE_NAME).put(note);
+                request.onsuccess = () => resolve();
+            });
+        }
+
+        function deleteNoteFromDB(id) {
+            return new Promise((resolve, reject) => {
+                if (!db) return reject('No DB');
+                const request = db.transaction([STORE_NAME], 'readwrite').objectStore(STORE_NAME).delete(id);
+                request.onsuccess = () => resolve();
+            });
+        }
+
+        // ========================================
+        // App Logic & Long Press Delete
+        // ========================================
+        let activeId = null;
+        let isDeleteMode = false;
+        let pressTimer;
+
         const cardGradients = [
             "linear-gradient(135deg, #00BFC0, #00A1D8)",
             "linear-gradient(135deg, #7851A5, #FE0D6D)",
@@ -190,7 +281,10 @@
             "linear-gradient(135deg, #4facfe, #00f2fe)"
         ];
 
-        function init() {
+        async function init() {
+            await initDB();
+            
+            const colors = ["#EE7EA0", "#FE0D6D", "#00A1D8", "#00BFC0", "#91CA57", "#F7CE15", "#FD5E00", "#7851A5", "#FFFFFF", "#1e293b", "#0f172a", "#000000"];
             const container = document.getElementById('palettePop');
             colors.forEach(c => {
                 const d = document.createElement('div');
@@ -199,99 +293,106 @@
                 container.appendChild(d);
             });
 
+            const fonts = ['Montserrat', 'Playfair Display', 'Roboto', 'Lora', 'Courier Prime', 'Poppins'];
             const fontPop = document.getElementById('fontPop');
             fonts.forEach(f => {
                 const o = document.createElement('div');
                 o.className = 'font-option'; o.innerText = f; o.style.fontFamily = f;
-                o.onclick = () => { applyFont(f); };
+                o.onclick = () => applyFont(f);
                 fontPop.appendChild(o);
             });
-            renderHome();
-        }
-
-        function toggleTheme() {
-            document.body.classList.toggle('light-mode');
-            document.getElementById('tIcon').innerText = document.body.classList.contains('light-mode') ? "🌚" : "🌞";
-        }
-        function toggleSidebar() { document.getElementById('sideBar').classList.toggle('hidden'); }
-
-        function openPalette(type) {
-            paletteTarget = type;
-            const p = document.getElementById('palettePop');
-            p.style.display = p.style.display === 'grid' ? 'none' : 'grid';
-            document.getElementById('fontPop').style.display = 'none';
-        }
-
-        function applyStyle(val) {
-            if (paletteTarget === 'text') {
-                if (savedRange) { const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(savedRange); }
-                document.execCommand('foreColor', false, val);
-            }
-            if (paletteTarget === 'title') document.getElementById('titleInput').style.color = val;
-            if (paletteTarget === 'bg') document.getElementById('mainCanvas').style.backgroundColor = val;
-            save();
-        }
-
-        function toggleFontPopup() {
-            const p = document.getElementById('fontPop');
-            p.style.display = p.style.display === 'flex' ? 'none' : 'flex';
-            document.getElementById('palettePop').style.display = 'none';
-        }
-
-        function applyFont(font) {
-            document.getElementById('editor').style.fontFamily = font;
-            toggleFontPopup();
-            save();
-        }
-
-        function cycleHeading() {
-            headingLevel = (headingLevel + 1) % 3;
-            const tags = ['p', 'h1', 'h2'];
-            document.execCommand('formatBlock', false, tags[headingLevel]);
-            const btn = document.getElementById('headBtn');
-            btn.innerText = headingLevel === 0 ? 'H' : 'H' + headingLevel;
-        }
-
-        const editor = document.getElementById('editor');
-        editor.onmouseup = editor.onkeyup = () => { 
-            const sel = window.getSelection();
-            if (sel.rangeCount > 0) savedRange = sel.getRangeAt(0);
-        };
-
-        function doc(cmd) { document.execCommand(cmd, false, null); editor.focus(); save(); }
-
-        // UPDATED: Dynamically injects colors to the saved idea cards
-        function renderHome() {
-            const grid = document.getElementById('noteGrid');
-            const widget = grid.firstElementChild;
-            grid.innerHTML = ''; grid.appendChild(widget);
             
-            db.forEach((n, index) => {
+            await renderHome();
+        }
+
+        // --- SHAKING / DELETE MODE LOGIC ---
+        function activateDeleteMode() {
+            isDeleteMode = true;
+            document.getElementById('noteGrid').classList.add('delete-mode');
+            document.getElementById('doneDeleteBtn').style.display = 'block';
+            if (navigator.vibrate) navigator.vibrate(50); // Small vibrate on phone
+        }
+
+        function deactivateDeleteMode() {
+            isDeleteMode = false;
+            document.getElementById('noteGrid').classList.remove('delete-mode');
+            document.getElementById('doneDeleteBtn').style.display = 'none';
+        }
+
+        function startPress() {
+            if (isDeleteMode) return;
+            pressTimer = window.setTimeout(activateDeleteMode, 600); // 0.6 seconds hold
+        }
+
+        function cancelPress() {
+            clearTimeout(pressTimer);
+        }
+
+        async function deleteNoteFromHome(id) {
+            if (confirm("ဖျက်မှာသေချာပြီလား?")) {
+                await deleteNoteFromDB(id);
+                await renderHome();
+                // If no notes left, exit delete mode
+                const notes = await getAllNotes();
+                if(notes.length === 0) deactivateDeleteMode();
+            }
+        }
+
+        // --- RENDER HOME ---
+        async function renderHome() {
+            const grid = document.getElementById('noteGrid');
+            const widget = grid.firstElementChild; // Keep Create button
+            grid.innerHTML = ''; 
+            grid.appendChild(widget);
+            
+            const notes = await getAllNotes();
+            notes.sort((a, b) => b.id - a.id);
+            
+            notes.forEach((n, index) => {
                 const card = document.createElement('div');
-                card.className = 'card';
-                // Cycle through the gradient array based on the index
-                const bgGrad = cardGradients[index % cardGradients.length];
-                card.style.background = bgGrad;
+                card.className = 'card idea-card';
+                card.style.background = cardGradients[index % cardGradients.length];
                 card.style.color = "white";
-                card.style.border = "none";
                 
-                card.innerHTML = `<h4 style="color: white;">${n.title || 'Draft Idea'}</h4><span class="date" style="color: rgba(255,255,255,0.8);">${n.date}</span>`;
-                card.onclick = () => openNote(n.id);
+                card.innerHTML = `
+                    <button class="card-delete-btn" onclick="event.stopPropagation(); deleteNoteFromHome(${n.id})">✕</button>
+                    <h4 style="color: white;">${n.title || 'Draft Idea'}</h4>
+                    <span class="date" style="color: rgba(255,255,255,0.8);">${n.date}</span>
+                `;
+                
+                // Click logic (Don't open note if in delete mode)
+                card.onclick = (e) => {
+                    if (isDeleteMode) {
+                        e.preventDefault();
+                    } else {
+                        openNote(n.id);
+                    }
+                };
+
+                // Touch & Mouse events for Long Press
+                card.addEventListener('touchstart', startPress, {passive: true});
+                card.addEventListener('touchend', cancelPress);
+                card.addEventListener('touchmove', cancelPress);
+                card.addEventListener('mousedown', startPress);
+                card.addEventListener('mouseup', cancelPress);
+                card.addEventListener('mouseleave', cancelPress);
+
                 grid.appendChild(card);
             });
-            document.getElementById('totalCount').innerText = db.length;
+            
+            document.getElementById('totalCount').innerText = notes.length;
         }
 
-        function openNote(id) {
+        // --- EDITOR LOGIC ---
+        async function openNote(id) {
             if(!id) {
-                const n = { 
-                    id: Date.now(), title: "", content: "", 
-                    date: new Date().toLocaleDateString(), 
-                    bgCol: '', titleCol: '', font: 'Montserrat' 
-                };
-                db.unshift(n); activeId = n.id;
-            } else activeId = id;
-            const note = db.find(n => n.id === activeId);
+                const n = { id: Date.now(), title: "", content: "", date: new Date().toLocaleDateString(), bgCol: '', titleCol: '', font: 'Montserrat' };
+                await saveNoteToDB(n);
+                activeId = n.id;
+            } else {
+                activeId = id;
+            }
+            const note = await getNoteById(activeId);
             document.getElementById('titleInput').value = note.title;
             document.getElementById('titleInput').style.color = note.titleCol || '';
             document.getElementById('editor').innerHTML = note.content;
@@ -300,7 +401,10 @@
             switchScreen('canvasScreen');
         }
 
-        function closeNote() { switchScreen('homeScreen'); renderHome(); }
+        async function closeNote() { 
+            switchScreen('homeScreen'); 
+            await renderHome(); 
+        }
 
         function switchScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -312,22 +416,52 @@
             }, 300);
         }
 
-        function save() {
-            const n = db.find(n => n.id === activeId);
-            if(n) {
-                n.title = document.getElementById('titleInput').value;
-                n.content = editor.innerHTML;
-                n.bgCol = document.getElementById('mainCanvas').style.backgroundColor;
-                n.titleCol = document.getElementById('titleInput').style.color;
-                n.font = document.getElementById('editor').style.fontFamily;
+        async function save() {
+            if (!activeId) return;
+            const note = await getNoteById(activeId);
+            if(note) {
+                note.title = document.getElementById('titleInput').value;
+                note.content = document.getElementById('editor').innerHTML;
+                note.bgCol = document.getElementById('mainCanvas').style.backgroundColor;
+                note.titleCol = document.getElementById('titleInput').style.color;
+                note.font = document.getElementById('editor').style.fontFamily;
+                await saveNoteToDB(note);
             }
-            localStorage.setItem('IdeaBookLand_Master_v1', JSON.stringify(db));
         }
 
+        async function deleteCurrentNote() {
+            if (!activeId) return;
+            if (confirm("ဒီ Idea ကို တကယ်ဖျက်မှာ သေချာပြီလား?")) {
+                await deleteNoteFromDB(activeId);
+                activeId = null;
+                await closeNote(); 
+            }
+        }
+
+        // UI Tools (Fonts, Colors, Themes)
+        let paletteTarget = 'text';
+        function toggleTheme() { document.body.classList.toggle('light-mode'); document.getElementById('tIcon').innerText = document.body.classList.contains('light-mode') ? "🌚" : "🌞"; }
+        function toggleSidebar() { document.getElementById('sideBar').classList.toggle('hidden'); }
+        function doc(cmd) { document.execCommand(cmd, false, null); document.getElementById('editor').focus(); save(); }
+        function openPalette(type) { paletteTarget = type; const p = document.getElementById('palettePop'); p.style.display = p.style.display === 'grid' ? 'none' : 'grid'; document.getElementById('fontPop').style.display = 'none'; }
+        function toggleFontPopup() { const p = document.getElementById('fontPop'); p.style.display = p.style.display === 'flex' ? 'none' : 'flex'; document.getElementById('palettePop').style.display = 'none'; }
+        function applyFont(font) { document.getElementById('editor').style.fontFamily = font; toggleFontPopup(); save(); }
+        function applyStyle(val) {
+            if (paletteTarget === 'text') document.execCommand('foreColor', false, val);
+            if (paletteTarget === 'title') document.getElementById('titleInput').style.color = val;
+            if (paletteTarget === 'bg') document.getElementById('mainCanvas').style.backgroundColor = val;
+            save();
+        }
+        let headingLevel = 0;
+        function cycleHeading() {
+            headingLevel = (headingLevel + 1) % 3;
+            document.execCommand('formatBlock', false, ['p', 'h1', 'h2'][headingLevel]);
+            document.getElementById('headBtn').innerText = headingLevel === 0 ? 'H' : 'H' + headingLevel;
+        }
         function exportTxt() {
             const t = document.getElementById('titleInput').value || 'Idea';
-            const b = new Blob([editor.innerText], {type:'text/plain'});
-            const a = document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`${t}.txt`; a.click();
+            const b = new Blob([document.getElementById('editor').innerText], {type:'text/plain'});
+            const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `${t}.txt`; a.click();
         }
 
         init();
