@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Idea BookLand Premium Pro</title>
+    <title>Shaine's Mini Project</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#FE0D6D">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3596/3596080.png">
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Montserrat:wght@400;700&family=Playfair+Display:wght@700&family=Roboto:wght@400;700&family=Lora:ital,wght@0,400;1,700&family=Courier+Prime&family=Poppins:wght@400;600&display=swap');
 
@@ -39,8 +44,6 @@
             padding-right: 10px; 
             display: inline-block; 
         }
-        
-        .subtitle { font-size: 0.8rem; opacity: 0.5; margin-top: -5px; }
         
         .top-actions { display: flex; align-items: center; gap: 15px; }
         .theme-btn { font-size: 1.5rem; cursor: pointer; filter: grayscale(1); }
@@ -135,7 +138,9 @@
         <div class="header-row">
             <div>
                 <h1 class="logo-main">Idea BookLand</h1>
-                <div class="subtitle">Premium Digital Workspace</div>
+                <div style="font-family: 'Pyidaungsu', 'Segoe UI', sans-serif; background: linear-gradient(45deg, #FE0D6D, #00BFC0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: bold; font-size: 0.95rem; margin-top: 5px;">
+                    ( ရှိန်းခန့်ပိုင်ရဲ့ အိုင်ဒီယာမှတ်စု )
+                </div>
             </div>
             <div class="top-actions">
                 <button id="doneDeleteBtn" onclick="deactivateDeleteMode()">Done</button>
@@ -211,6 +216,15 @@
     </section>
 
     <script>
+        // Service Worker Register for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker Registered'))
+                    .catch(err => console.log('Service Worker Failed', err));
+            });
+        }
+
         // ========================================
         // IndexedDB Setup 
         // ========================================
@@ -338,7 +352,7 @@
             }
         }
 
-          // --- RENDER HOME ---
+        // --- RENDER HOME ---
         async function renderHome() {
             const grid = document.getElementById('noteGrid');
             const widget = grid.firstElementChild; // Keep Create button
@@ -383,7 +397,7 @@
             document.getElementById('totalCount').innerText = notes.length;
         }
 
-        // --- EDITOR LOGIC ---
+          // --- EDITOR LOGIC ---
         async function openNote(id) {
             if(!id) {
                 const n = { id: Date.now(), title: "", content: "", date: new Date().toLocaleDateString(), bgCol: '', titleCol: '', font: 'Montserrat' };
