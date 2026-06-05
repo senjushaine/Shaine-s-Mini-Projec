@@ -136,11 +136,15 @@
 
     <section id="homeScreen" class="screen active">
         <div class="header-row">
+                        <!-- CHANGED: Replaced Burmese text, added tagline and small logo to header -->
             <div>
-                <h1 class="logo-main">Idea BookLand</h1>
-                <div style="font-family: 'Pyidaungsu', 'Segoe UI', sans-serif; background: linear-gradient(45deg, #FE0D6D, #00BFC0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: bold; font-size: 0.95rem; margin-top: 5px;">
-                    ( ရှိန်းခန့်ပိုင်ရဲ့ အိုင်ဒီယာမှတ်စု )
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <img src="./app-logo.png" alt="Idea BookLand Logo" style="width: 34px; height: 34px; object-fit: contain;">
+                    <h1 class="logo-main" style="margin: 0; font-size: 1.4rem; color: #f8fafc;">Idea BookLand</h1>
                 </div>
+                <div style="color: #0066FF; font-family: monospace; font-size: 0.85rem; margin-top: 4px; letter-spacing: 0.5px;">{ Capture Your Ideas }</div>
+            </div>
+            
             </div>
             <div class="top-actions">
                 <button id="doneDeleteBtn" onclick="deactivateDeleteMode()">Done</button>
