@@ -3,13 +3,18 @@
   "short_name": "BookLand",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#FE0D6D",
+  "background_color": "#000000",
+  "theme_color": "#0066FF",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/3596/3596080.png",
+      "src": "./app-logo.jpg",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/jpeg"
+    },
+    {
+      "src": "./app-logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
     }
   ]
 }
