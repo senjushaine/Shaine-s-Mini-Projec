@@ -135,6 +135,77 @@
             transition: all 0.2s ease;
         }
         .tool-toggle:hover { transform: scale(1.1); }
+
+        /* --- FLOATING BACK BUTTON --- */
+        #floatingBackBtn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 45px;
+            height: 45px;
+            background: var(--premium-btn);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.5rem;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 40;
+            box-shadow: 0 4px 15px rgba(254, 13, 109, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        #floatingBackBtn.visible {
+            display: flex;
+            animation: slideInBack 0.3s ease forwards;
+        }
+
+        @keyframes slideInBack {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        #floatingBackBtn:active {
+            transform: scale(0.95);
+        }
+
+        /* --- SWIPE BACK INDICATOR --- */
+        #swipeBackIndicator {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(to right, rgba(254, 13, 109, 0.3), transparent);
+            pointer-events: none;
+            z-index: 35;
+            transition: width 0.1s ease;
+        }
+
+        #swipeBackArrow {
+            position: fixed;
+            left: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2rem;
+            color: rgba(254, 13, 109, 0.7);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 36;
+            transition: opacity 0.2s ease;
+        }
+
+        #swipeBackArrow.active {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -177,8 +248,12 @@
     </section>
 
     <section id="canvasScreen" class="screen">
+        <div id="swipeBackIndicator"></div>
+        <div id="swipeBackArrow">←</div>
+        <button id="floatingBackBtn" onclick="handleBackButton()" title="Go Back">←</button>
+
         <aside id="sideBar">
-            <button class="t-btn" onclick="handleBackButton()">🏠</button>
+            <button class="t-btn" onclick="handleBackButton()" title="Go Back">🏠</button>
             <div style="height:1px; width:30px; background:var(--border); margin:5px 0;"></div>
             
             <button class="t-btn" onclick="toggleFontPopup()">fF</button>
@@ -233,55 +308,89 @@
         }
 
         // ========================================
-        // ANDROID BACK BUTTON HANDLING
+        // SWIPE BACK GESTURE HANDLING
+        // ========================================
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let isSwiping = false;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            isSwiping = false;
+        }, { passive: true });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!isOnEditorScreen()) return;
+            
+            const currentX = e.touches[0].clientX;
+            const currentY = e.touches[0].clientY;
+            const diffX = currentX - touchStartX;
+            const diffY = currentY - touchStartY;
+
+            // Check if swipe is from left edge and horizontal
+            if (touchStartX < 50 && Math.abs(diffX) > Math.abs(diffY) && diffX > 0) {
+                isSwiping = true;
+                const swipeProgress = Math.min(diffX / window.innerWidth, 1);
+                
+                // Show swipe indicator
+                document.getElementById('swipeBackIndicator').style.width = (diffX * 0.5) + 'px';
+                document.getElementById('swipeBackArrow').classList.add('active');
+            }
+        }, { passive: true });
+
+        document.addEventListener('touchend', (e) => {
+            if (!isSwiping) return;
+
+            const currentX = e.changedTouches[0].clientX;
+            const diffX = currentX - touchStartX;
+
+            // Reset indicators
+            document.getElementById('swipeBackIndicator').style.width = '0';
+            document.getElementById('swipeBackArrow').classList.remove('active');
+
+            // If swiped more than 80px, go back
+            if (diffX > 80) {
+                handleBackButton();
+            }
+
+            isSwiping = false;
+        }, { passive: true });
+
+        // ========================================
+        // NAVIGATION STACK
         // ========================================
         let navigationStack = ['homeScreen'];
         let currentScreen = 'homeScreen';
+
+        function isOnEditorScreen() {
+            return currentScreen === 'canvasScreen';
+        }
 
         function pushScreen(screenId) {
             if (navigationStack[navigationStack.length - 1] !== screenId) {
                 navigationStack.push(screenId);
             }
             currentScreen = screenId;
+            updateBackButtonVisibility();
         }
 
         function popScreen() {
             if (navigationStack.length > 1) {
                 navigationStack.pop();
                 currentScreen = navigationStack[navigationStack.length - 1];
+                updateBackButtonVisibility();
                 return currentScreen;
             }
             return null;
         }
 
-        function getCurrentScreen() {
-            return navigationStack[navigationStack.length - 1];
-        }
-
-        // Handle device back button (Android hardware back button)
-        document.addEventListener('backbutton', function(e) {
-            e.preventDefault();
-            handleDeviceBack();
-        }, false);
-
-        // For browsers that support the back event
-        window.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' || e.key === 'BackSpace') {
-                const activeElement = document.activeElement;
-                // Only handle escape if not in an input field
-                if (activeElement.tagName !== 'INPUT' && activeElement.tagName !== 'TEXTAREA' && !activeElement.contentEditable) {
-                    handleDeviceBack();
-                }
-            }
-        });
-
-        function handleDeviceBack() {
-            const prev = popScreen();
-            if (prev) {
-                switchScreen(prev);
+        function updateBackButtonVisibility() {
+            const btn = document.getElementById('floatingBackBtn');
+            if (isOnEditorScreen()) {
+                btn.classList.add('visible');
             } else {
-                // On home screen, can exit normally
-                console.log('On home screen - back button would exit app');
+                btn.classList.remove('visible');
             }
         }
 
@@ -384,7 +493,7 @@
             isDeleteMode = true;
             document.getElementById('noteGrid').classList.add('delete-mode');
             document.getElementById('doneDeleteBtn').style.display = 'block';
-            if (navigator.vibrate) navigator.vibrate(50); // Small vibrate on phone
+            if (navigator.vibrate) navigator.vibrate(50);
         }
 
         function deactivateDeleteMode() {
@@ -395,7 +504,7 @@
 
         function startPress() {
             if (isDeleteMode) return;
-            pressTimer = window.setTimeout(activateDeleteMode, 600); // 0.6 seconds hold
+            pressTimer = window.setTimeout(activateDeleteMode, 600);
         }
 
         function cancelPress() {
@@ -406,7 +515,6 @@
             if (confirm("Are you sure you want to delete this idea?")) {
                 await deleteNoteFromDB(id);
                 await renderHome();
-                // If no notes left, exit delete mode
                 const notes = await getAllNotes();
                 if(notes.length === 0) deactivateDeleteMode();
             }
@@ -415,7 +523,7 @@
         // --- RENDER HOME ---
         async function renderHome() {
             const grid = document.getElementById('noteGrid');
-            const widget = grid.firstElementChild; // Keep Create button
+            const widget = grid.firstElementChild;
             grid.innerHTML = ''; 
             grid.appendChild(widget);
             
@@ -434,7 +542,6 @@
                     <span class="date" style="color: rgba(255,255,255,0.8);">${n.date}</span>
                 `;
                 
-                // Click logic (Don't open note if in delete mode)
                 card.onclick = (e) => {
                     if (isDeleteMode) {
                         e.preventDefault();
@@ -443,7 +550,6 @@
                     }
                 };
 
-                // Touch & Mouse events for Long Press
                 card.addEventListener('touchstart', startPress, {passive: true});
                 card.addEventListener('touchend', cancelPress);
                 card.addEventListener('touchmove', cancelPress);
@@ -483,7 +589,7 @@
         async function closeNote() { 
             await save();
             switchScreen('homeScreen');
-            pushScreen('homeScreen');
+            popScreen();
             await renderHome(); 
         }
 
