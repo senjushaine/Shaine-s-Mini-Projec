@@ -233,34 +233,57 @@
         }
 
         // ========================================
-        // BACK BUTTON HISTORY MANAGEMENT
+        // ANDROID BACK BUTTON HANDLING
         // ========================================
-        let navigationHistory = ['homeScreen'];
+        let navigationStack = ['homeScreen'];
         let currentScreen = 'homeScreen';
 
-        function pushHistory(screenId) {
-            if (navigationHistory[navigationHistory.length - 1] !== screenId) {
-                navigationHistory.push(screenId);
+        function pushScreen(screenId) {
+            if (navigationStack[navigationStack.length - 1] !== screenId) {
+                navigationStack.push(screenId);
             }
             currentScreen = screenId;
-            window.history.pushState({ screen: screenId }, '');
         }
 
-        function popHistory() {
-            if (navigationHistory.length > 1) {
-                navigationHistory.pop();
-                currentScreen = navigationHistory[navigationHistory.length - 1];
+        function popScreen() {
+            if (navigationStack.length > 1) {
+                navigationStack.pop();
+                currentScreen = navigationStack[navigationStack.length - 1];
                 return currentScreen;
             }
             return null;
         }
 
-        window.addEventListener('popstate', (event) => {
-            const previousScreen = popHistory();
-            if (previousScreen) {
-                switchScreen(previousScreen);
+        function getCurrentScreen() {
+            return navigationStack[navigationStack.length - 1];
+        }
+
+        // Handle device back button (Android hardware back button)
+        document.addEventListener('backbutton', function(e) {
+            e.preventDefault();
+            handleDeviceBack();
+        }, false);
+
+        // For browsers that support the back event
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' || e.key === 'BackSpace') {
+                const activeElement = document.activeElement;
+                // Only handle escape if not in an input field
+                if (activeElement.tagName !== 'INPUT' && activeElement.tagName !== 'TEXTAREA' && !activeElement.contentEditable) {
+                    handleDeviceBack();
+                }
             }
         });
+
+        function handleDeviceBack() {
+            const prev = popScreen();
+            if (prev) {
+                switchScreen(prev);
+            } else {
+                // On home screen, can exit normally
+                console.log('On home screen - back button would exit app');
+            }
+        }
 
         // ========================================
         // IndexedDB Setup 
@@ -450,22 +473,17 @@
             document.getElementById('editor').style.fontFamily = note.font || 'Montserrat';
             document.getElementById('mainCanvas').style.backgroundColor = note.bgCol || '';
             switchScreen('canvasScreen');
-            pushHistory('canvasScreen');
+            pushScreen('canvasScreen');
         }
 
         function handleBackButton() {
-            const previousScreen = popHistory();
-            if (previousScreen) {
-                closeNote();
-            } else {
-                // If no history, go to home
-                closeNote();
-            }
+            closeNote();
         }
 
         async function closeNote() { 
-            switchScreen('homeScreen'); 
-            pushHistory('homeScreen');
+            await save();
+            switchScreen('homeScreen');
+            pushScreen('homeScreen');
             await renderHome(); 
         }
 
