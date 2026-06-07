@@ -178,7 +178,7 @@
 
     <section id="canvasScreen" class="screen">
         <aside id="sideBar">
-            <button class="t-btn" onclick="closeNote()">🏠</button>
+            <button class="t-btn" onclick="handleBackButton()">🏠</button>
             <div style="height:1px; width:30px; background:var(--border); margin:5px 0;"></div>
             
             <button class="t-btn" onclick="toggleFontPopup()">fF</button>
@@ -231,6 +231,36 @@
                     .catch(err => console.log('Service Worker Failed', err));
             });
         }
+
+        // ========================================
+        // BACK BUTTON HISTORY MANAGEMENT
+        // ========================================
+        let navigationHistory = ['homeScreen'];
+        let currentScreen = 'homeScreen';
+
+        function pushHistory(screenId) {
+            if (navigationHistory[navigationHistory.length - 1] !== screenId) {
+                navigationHistory.push(screenId);
+            }
+            currentScreen = screenId;
+            window.history.pushState({ screen: screenId }, '');
+        }
+
+        function popHistory() {
+            if (navigationHistory.length > 1) {
+                navigationHistory.pop();
+                currentScreen = navigationHistory[navigationHistory.length - 1];
+                return currentScreen;
+            }
+            return null;
+        }
+
+        window.addEventListener('popstate', (event) => {
+            const previousScreen = popHistory();
+            if (previousScreen) {
+                switchScreen(previousScreen);
+            }
+        });
 
         // ========================================
         // IndexedDB Setup 
@@ -420,10 +450,22 @@
             document.getElementById('editor').style.fontFamily = note.font || 'Montserrat';
             document.getElementById('mainCanvas').style.backgroundColor = note.bgCol || '';
             switchScreen('canvasScreen');
+            pushHistory('canvasScreen');
+        }
+
+        function handleBackButton() {
+            const previousScreen = popHistory();
+            if (previousScreen) {
+                closeNote();
+            } else {
+                // If no history, go to home
+                closeNote();
+            }
         }
 
         async function closeNote() { 
             switchScreen('homeScreen'); 
+            pushHistory('homeScreen');
             await renderHome(); 
         }
 
